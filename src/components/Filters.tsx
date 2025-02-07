@@ -34,11 +34,6 @@ const filters = [
       },
     ],
   },
-  {
-    label: 'Topics',
-    value: 'topics',
-    icon: <Hash className='w-4 h-4' />,
-  },
 ];
 
 interface FiltersProps {
