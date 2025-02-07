@@ -18,19 +18,21 @@ export type Language = (typeof POPULAR_LANGUAGES)[number] | null;
 
 interface SettingsPopupProps {
   onClose: () => void;
-  onSave: (language: Language) => void;
-  initialLanguage?: Language;
+  onSave: (language: string, token: string) => void;
+  initialLanguage?: string;
+  initialToken?: string;
 }
 
 export function SettingsPopup(props: SettingsPopupProps) {
-  const { onClose, onSave, initialLanguage } = props;
+  const { onClose, onSave, initialLanguage, initialToken } = props;
 
-  const [selectedLanguage, setSelectedLanguage] = useState<Language>(
-    initialLanguage ?? null
+  const [selectedLanguage, setSelectedLanguage] = useState(
+    initialLanguage ?? ''
   );
+  const [token, setToken] = useState(initialToken ?? '');
 
   const handleSave = () => {
-    onSave(selectedLanguage);
+    onSave(selectedLanguage, token);
     onClose();
   };
 
@@ -68,10 +70,8 @@ export function SettingsPopup(props: SettingsPopupProps) {
               <div className='relative'>
                 <select
                   id='language'
-                  value={selectedLanguage ?? ''}
-                  onChange={(e) =>
-                    setSelectedLanguage(e.target.value as Language)
-                  }
+                  value={selectedLanguage}
+                  onChange={(e) => setSelectedLanguage(e.target.value)}
                   className='w-full bg-black/20 text-white border border-white/10 rounded-xl px-4 py-3 appearance-none focus:outline-none focus:ring-2 focus:ring-white/20 transition-all'
                 >
                   <option value=''>All Languages</option>
@@ -99,6 +99,34 @@ export function SettingsPopup(props: SettingsPopupProps) {
               </div>
               <p className='mt-2 text-sm text-white/50'>
                 Select a language to filter repositories
+              </p>
+            </div>
+
+            <div>
+              <label
+                htmlFor='token'
+                className='block text-sm font-medium text-white/70 mb-2'
+              >
+                GitHub Token
+              </label>
+              <input
+                id='token'
+                type='password'
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+                placeholder='ghp_xxxxxxxxxxxx'
+                className='w-full bg-black/20 text-white border border-white/10 rounded-xl px-4 py-3 appearance-none focus:outline-none focus:ring-2 focus:ring-white/20 transition-all'
+              />
+              <p className='mt-2 text-sm text-white/50'>
+                Add a GitHub token to avoid rate limiting. You can{' '}
+                <a
+                  href='https://github.com/settings/tokens/new?description=gititok&scopes=public_repo'
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='text-blue-400 hover:text-blue-300 transition-colors'
+                >
+                  create one on GitHub.
+                </a>
               </p>
             </div>
           </div>

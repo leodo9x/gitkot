@@ -1,4 +1,9 @@
 import { Repository } from '../components/RepositoryCard';
+import {
+  InvalidTokenError,
+  OnlyFirst1000ResultsError,
+  RateLimitExceededError,
+} from './errors';
 
 const GITHUB_API_BASE = 'https://api.github.com';
 
@@ -48,10 +53,10 @@ export interface FetchRepositoriesParams {
   page: number;
 }
 
-export async function fetchRepositoriesPage({
-  criteria,
-  page,
-}: FetchRepositoriesParams): Promise<SearchResponse> {
+export async function fetchRepositoriesPage(
+  { criteria, page }: FetchRepositoriesParams,
+  token?: string
+): Promise<SearchResponse> {
   // GitHub only allows access to first 1000 results
   if (page > MAX_PAGES) {
     throw new Error('Only first 1000 results are available');
@@ -62,15 +67,32 @@ export async function fetchRepositoriesPage({
     query
   )}&sort=stars&order=desc&page=${page}&per_page=${PER_PAGE}`;
 
-  const response = await fetch(url);
+  const response = await fetch(
+    url,
+    token
+      ? {
+          headers: {
+            Authorization: `token ${token}`,
+          },
+        }
+      : undefined
+  );
 
   if (!response.ok) {
     if (response.status === 403) {
-      throw new Error('Rate limit exceeded. Please try again later.');
+      throw new RateLimitExceededError(
+        'Rate limit exceeded. Please try again later.'
+      );
     }
 
     if (response.status === 422) {
-      throw new Error('Only first 1000 search results are available');
+      throw new OnlyFirst1000ResultsError(
+        'Only first 1000 search results are available'
+      );
+    }
+
+    if (response.status === 401) {
+      throw new InvalidTokenError('Invalid token. Please try again.');
     }
 
     throw new Error('Failed to fetch repositories');

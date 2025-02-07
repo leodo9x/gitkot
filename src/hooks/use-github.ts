@@ -1,7 +1,4 @@
-import {
-  InfiniteData,
-  useInfiniteQuery
-} from '@tanstack/react-query';
+import { InfiniteData, useInfiniteQuery } from '@tanstack/react-query';
 import { useCallback, useRef } from 'react';
 import { Repository } from '../components/RepositoryCard';
 import {
@@ -10,6 +7,8 @@ import {
   SEARCH_CRITERIAS,
   SearchCriteria,
 } from '../lib/github';
+import { InvalidTokenError, OnlyFirst1000ResultsError } from '../lib/errors';
+import { RateLimitExceededError } from '../lib/errors';
 
 const SEEN_STORAGE_KEY = 'github_seen_repositories';
 
@@ -33,10 +32,13 @@ interface QueryResponse {
 }
 
 interface UseGitHubOptions {
-  language?: string | null;
+  language?: string;
+  token?: string;
 }
 
-export function useGitHub({ language = null }: UseGitHubOptions = {}) {
+export function useGitHub(params: UseGitHubOptions = {}) {
+  const { language, token } = params;
+
   const seenRef = useRef<SeenRepositories>({});
 
   const loadSeenRepositories = useCallback((): SeenRepositories => {
@@ -114,7 +116,7 @@ export function useGitHub({ language = null }: UseGitHubOptions = {}) {
       QueryResponse,
       Error,
       InfiniteData<QueryResponse>,
-      [string, string | null],
+      [string, string | undefined],
       PageParam | null
     >({
       queryKey: ['repositories', language],
@@ -128,7 +130,7 @@ export function useGitHub({ language = null }: UseGitHubOptions = {}) {
           const criteriaKey = JSON.stringify(params.criteria);
 
           try {
-            const response = await fetchRepositoriesPage(params);
+            const response = await fetchRepositoriesPage(params, token);
 
             if (response.total_count === 0) {
               // If no results found, mark this criteria as exhausted and try next one
@@ -171,8 +173,9 @@ export function useGitHub({ language = null }: UseGitHubOptions = {}) {
             };
           } catch (error) {
             if (
-              error instanceof Error &&
-              error.message.includes('Rate limit exceeded')
+              error instanceof RateLimitExceededError ||
+              error instanceof OnlyFirst1000ResultsError ||
+              error instanceof InvalidTokenError
             ) {
               throw error;
             }
@@ -187,11 +190,6 @@ export function useGitHub({ language = null }: UseGitHubOptions = {}) {
         return tryFetchWithParams(initialParams);
       },
       getNextPageParam: (lastPage) => lastPage.nextPage,
-      retry: (failureCount, error: Error) => {
-        return (
-          !error.message.includes('Rate limit exceeded') && failureCount < 3
-        );
-      },
     });
 
   const repositories = data?.pages.flatMap((page) => page.items) ?? [];

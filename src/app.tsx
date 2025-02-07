@@ -1,24 +1,31 @@
 import { Loader2, RefreshCcw, Settings } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Logo } from './components/Logo';
 import { RepositoryCard } from './components/RepositoryCard';
+import { SettingsPopup } from './components/SettingsPopup';
 import { useGitHub } from './hooks/use-github';
 import { useInfiniteScroll } from './hooks/use-infinite-scroll';
-import { useState, useEffect } from 'react';
-import { SettingsPopup, type Language } from './components/SettingsPopup';
 
 export function App() {
   const [showSettings, setShowSettings] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState<Language>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState<string>();
+  const [selectedToken, setSelectedToken] = useState<string>();
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('preferred_language');
+    const savedToken = localStorage.getItem('github_token');
+
     if (savedLanguage) {
-      setSelectedLanguage(savedLanguage as Language);
+      setSelectedLanguage(savedLanguage);
+    }
+
+    if (savedToken) {
+      setSelectedToken(savedToken);
     }
   }, []);
 
   const { repositories, isLoading, isFetchingMore, fetchMore, refresh } =
-    useGitHub({ language: selectedLanguage });
+    useGitHub({ language: selectedLanguage, token: selectedToken });
 
   const scrollContainerRef = useInfiniteScroll({
     onLoadMore: fetchMore,
@@ -29,9 +36,12 @@ export function App() {
     refresh();
   };
 
-  const handleSaveSettings = (language: Language) => {
+  const handleSaveSettings = (language: string, token: string) => {
     setSelectedLanguage(language);
-    localStorage.setItem('preferred_language', language ?? '');
+    setSelectedToken(token);
+
+    localStorage.setItem('preferred_language', language);
+    localStorage.setItem('github_token', token);
   };
 
   return (
@@ -47,32 +57,35 @@ export function App() {
           onClose={() => setShowSettings(false)}
           onSave={handleSaveSettings}
           initialLanguage={selectedLanguage}
+          initialToken={selectedToken}
         />
       )}
 
       {/* Navigation */}
       <nav className='px-4 sm:px-6 py-4 flex justify-between flex-row bg-white/5 backdrop-blur-xl border-b border-white/10 z-50'>
-        <a
-          href='https://github.com'
-          className='flex items-center gap-2 text-white/70 hover:text-white transition-colors'
-        >
-          <Logo className='size-8' />
-          <span className='text-base font-medium'>gititok</span>
-        </a>
+        <div className='flex-1 flex justify-between max-w-2xl mx-auto items-center gap-2'>
+          <a
+            href='https://github.com'
+            className='flex items-center gap-2 text-white/70 hover:text-white transition-colors'
+          >
+            <Logo className='size-8' />
+            <span className='text-base font-medium'>gititok</span>
+          </a>
 
-        <div className='flex items-center gap-2'>
-          <button
-            onClick={() => setShowSettings(true)}
-            className='p-2 text-white/70 hover:text-white transition-colors'
-          >
-            <Settings className='w-5 h-5' />
-          </button>
-          <button
-            onClick={handleRefresh}
-            className='p-2 text-white/70 hover:text-white transition-colors'
-          >
-            <RefreshCcw className='w-5 h-5' />
-          </button>
+          <div className='flex items-center gap-2'>
+            <button
+              onClick={() => setShowSettings(true)}
+              className='p-2 text-white/70 hover:text-white transition-colors'
+            >
+              <Settings className='w-5 h-5' />
+            </button>
+            <button
+              onClick={handleRefresh}
+              className='p-2 text-white/70 hover:text-white transition-colors'
+            >
+              <RefreshCcw className='w-5 h-5' />
+            </button>
+          </div>
         </div>
       </nav>
       {isLoading ? (
