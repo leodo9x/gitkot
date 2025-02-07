@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Repository } from '../components/RepositoryCard';
 import {
-  GitHubRepository,
+  MAX_PAGES,
   SEARCH_CRITERIAS,
-  githubService,
+  searchRepositories,
 } from '../services/github';
-
 interface SeenRepositories {
   [key: string]: {
     seenPages: Set<number>;
@@ -13,28 +13,27 @@ interface SeenRepositories {
   };
 }
 
-const STORAGE_KEY = 'github_repositories_cache';
 const SEEN_STORAGE_KEY = 'github_seen_repositories';
 
-interface CachedData {
-  repositories: GitHubRepository[];
-  timestamp: number;
-}
-
-const MAX_PAGES = 100; // GitHub's 1000 result limit with 10 items per page
-
-export function useGitHubRepositories() {
-  const [repositories, setRepositories] = useState<GitHubRepository[]>([]);
+export function useGitHub() {
+  const [repositories, setRepositories] = useState<Repository[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Load seen repositories from localStorage
+  // we do that to avoid fetching the same repositories again
   const loadSeenRepositories = useCallback((): SeenRepositories => {
     const stored = localStorage.getItem(SEEN_STORAGE_KEY);
-    if (!stored) return {};
+    if (!stored) {
+      return {};
+    }
+
     return JSON.parse(stored, (key, value) => {
-      if (key === 'seenPages') return new Set(value);
+      if (key === 'seenPages') {
+        return new Set(value);
+      }
+
       return value;
     });
   }, []);
@@ -43,7 +42,7 @@ export function useGitHubRepositories() {
   const saveSeenRepositories = useCallback((seen: SeenRepositories) => {
     localStorage.setItem(
       SEEN_STORAGE_KEY,
-      JSON.stringify(seen, (key, value) => {
+      JSON.stringify(seen, (_, value) => {
         if (value instanceof Set) {
           return Array.from(value);
         }
@@ -59,8 +58,8 @@ export function useGitHubRepositories() {
       (criteria) => !seen[JSON.stringify(criteria)]?.exhausted
     );
 
+    // Reset seen repositories if all criterias are exhausted
     if (availableCriterias.length === 0) {
-      // Reset seen repositories if all criterias are exhausted
       localStorage.removeItem(SEEN_STORAGE_KEY);
       return {
         criteria: SEARCH_CRITERIAS[0],
@@ -108,21 +107,24 @@ export function useGitHubRepositories() {
         const { criteria, page } = getRandomSearchParams(seen);
         const criteriaKey = JSON.stringify(criteria);
 
-        const response = await githubService.searchRepositories(criteria, page);
+        const response = await searchRepositories(criteria, page);
 
         // Update seen pages
         const totalPages = Math.min(
           Math.ceil(response.total_count / 10),
           MAX_PAGES
         );
+
         const seenData = seen[criteriaKey] || {
           seenPages: new Set(),
           totalPages,
           exhausted: false,
         };
+
         seenData.seenPages.add(page);
         seenData.exhausted = seenData.seenPages.size >= totalPages;
         seen[criteriaKey] = seenData;
+
         saveSeenRepositories(seen);
 
         // Update repositories
@@ -157,26 +159,11 @@ export function useGitHubRepositories() {
     [loadSeenRepositories, getRandomSearchParams, saveSeenRepositories, error]
   );
 
-  // Initial fetch
   useEffect(() => {
-    const loadCachedData = () => {
-      const cached = localStorage.getItem(STORAGE_KEY);
-      if (cached) {
-        const { repositories, timestamp }: CachedData = JSON.parse(cached);
-        // Cache for 1 hour
-        if (Date.now() - timestamp < 3600000) {
-          setRepositories(repositories);
-          setIsLoading(false);
-          return true;
-        }
-      }
-      return false;
-    };
-
-    if (!loadCachedData()) {
+    if (repositories.length === 0) {
       fetchRepositories(true);
     }
-  }, [fetchRepositories]);
+  }, [repositories.length, fetchRepositories]);
 
   return {
     repositories,
@@ -189,7 +176,6 @@ export function useGitHubRepositories() {
     },
     refresh: () => {
       setIsLoading(true);
-      localStorage.removeItem(STORAGE_KEY);
       fetchRepositories(true);
     },
   };

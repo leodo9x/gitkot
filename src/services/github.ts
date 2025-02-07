@@ -1,73 +1,76 @@
-const GITHUB_API_BASE = 'https://api.github.com';
+import { Repository } from '../components/RepositoryCard';
 
-export interface GitHubRepository {
-  id: number;
-  full_name: string;
-  description: string;
-  html_url: string;
-  stargazers_count: number;
-  language: string;
-  owner: {
-    avatar_url: string;
-    login: string;
-  };
-}
+const GITHUB_API_BASE = 'https://api.github.com';
 
 export interface SearchResponse {
   total_count: number;
-  items: GitHubRepository[];
+  items: Repository[];
 }
 
 export type SearchCriteria = {
   stars: string;
-  timeframe?: string;
+  language?: string;
 };
 
+export const PER_PAGE = 20;
+export const MAX_PAGES = 50; // GitHub's 1000 result limit with 10 items per page
+
 export const SEARCH_CRITERIAS: SearchCriteria[] = [
-  { stars: '>1000' },
-  { stars: '>5000' },
-  { stars: '>10000' },
-  { stars: '>1000', timeframe: 'created:>2024-02-24' }, // last month
-  { stars: '>1000', timeframe: 'created:>2024-03-17' }, // last week
+  { stars: '<1000' },
+  { stars: '<2000' },
+  { stars: '<5000' },
+  { stars: '<8000' },
+  { stars: '<10000' },
+  { stars: '<15000' },
+  { stars: '<20000' },
+  { stars: '<30000' },
+  { stars: '<50000' },
+  { stars: '<70000' },
+  { stars: '<100000' },
+  { stars: '<200000' },
+  { stars: '<500000' },
+  { stars: '<1000000' },
+  { stars: '<2000000' },
+  { stars: '<5000000' },
 ];
 
-export class GitHubService {
-  private buildSearchQuery(criteria: SearchCriteria): string {
-    const parts = [`stars:${criteria.stars}`];
-    if (criteria.timeframe) {
-      parts.push(criteria.timeframe);
-    }
-    return parts.join(' ');
+function buildSearchQuery(criteria: SearchCriteria): string {
+  const parts = [`stars:${criteria.stars}`];
+
+  if (criteria.language) {
+    parts.push(`language:${criteria.language}`);
   }
 
-  async searchRepositories(
-    criteria: SearchCriteria,
-    page: number
-  ): Promise<SearchResponse> {
-    // GitHub only allows access to first 1000 results
-    if (page > 100) {
-      throw new Error('Only first 1000 results are available');
-    }
-
-    const query = this.buildSearchQuery(criteria);
-    const url = `${GITHUB_API_BASE}/search/repositories?q=${encodeURIComponent(
-      query
-    )}&sort=stars&order=desc&page=${page}&per_page=10`;
-
-    const response = await fetch(url);
-    
-    if (!response.ok) {
-      if (response.status === 403) {
-        throw new Error('Rate limit exceeded. Please try again later.');
-      }
-      if (response.status === 422) {
-        throw new Error('Only first 1000 search results are available');
-      }
-      throw new Error('Failed to fetch repositories');
-    }
-
-    return response.json();
-  }
+  return parts.join(' ');
 }
 
-export const githubService = new GitHubService();
+export async function searchRepositories(
+  criteria: SearchCriteria,
+  page: number
+): Promise<SearchResponse> {
+  // GitHub only allows access to first 1000 results
+  if (page > MAX_PAGES) {
+    throw new Error('Only first 1000 results are available');
+  }
+
+  const query = buildSearchQuery(criteria);
+  const url = `${GITHUB_API_BASE}/search/repositories?q=${encodeURIComponent(
+    query
+  )}&sort=stars&order=desc&page=${page}&per_page=${PER_PAGE}`;
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    if (response.status === 403) {
+      throw new Error('Rate limit exceeded. Please try again later.');
+    }
+
+    if (response.status === 422) {
+      throw new Error('Only first 1000 search results are available');
+    }
+
+    throw new Error('Failed to fetch repositories');
+  }
+
+  return response.json();
+}

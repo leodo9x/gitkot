@@ -1,10 +1,9 @@
 import {
-  Star,
-  Share2,
-  GitFork,
   CircleDot,
+  GitFork,
   GitPullRequest,
-  AlertCircle,
+  Share2,
+  Star
 } from 'lucide-react';
 export type License = {
   key: string;

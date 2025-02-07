@@ -1,36 +1,15 @@
 import { Loader2, RefreshCcw } from 'lucide-react';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Filters } from './components/Filters';
-import { Repository, RepositoryCard } from './components/RepositoryCard';
-import { repositories as apiRepositories } from './data/repositories';
-import { useGitHubRepositories } from './hooks/useGitHubRepositories';
+import { RepositoryCard } from './components/RepositoryCard';
+import { useGitHub } from './hooks/use-github';
 
 export function App() {
   const [activeFilter, setActiveFilter] = useState('discover');
-  const {
-    repositories,
-    isLoading,
-    isFetchingMore,
-    error,
-    fetchMore,
-    refresh
-  } = useGitHubRepositories();
+  const { repositories, isLoading, isFetchingMore, fetchMore, refresh } =
+    useGitHub();
+
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-  function fetchRepositories(): Promise<Repository[]> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(apiRepositories);
-      }, 1000);
-    });
-  }
-
-  useEffect(() => {
-    fetchRepositories().then((repositories) => {
-      setRepositories(repositories);
-      setIsLoading(false);
-    });
-  }, []);
 
   // Replace the existing scroll handler effect with this one
   useEffect(() => {
@@ -81,7 +60,7 @@ export function App() {
       {/* Navigation */}
       <nav className='px-4 sm:px-6 py-4 flex justify-between flex-row bg-white/5 backdrop-blur-xl border-b border-white/10 z-50'>
         <Filters activeFilter={activeFilter} onFilterChange={setActiveFilter} />
-        <button 
+        <button
           onClick={handleRefresh}
           className='p-2 text-white/70 hover:text-white transition-colors'
         >

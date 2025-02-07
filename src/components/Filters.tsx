@@ -1,4 +1,4 @@
-import { Calendar, Earth, Flame, Hash, Moon, Sun } from 'lucide-react';
+import { Calendar, Earth, Flame, Moon, Sun } from 'lucide-react';
 import { FilterButton } from './FilterButton';
 
 const filters = [
