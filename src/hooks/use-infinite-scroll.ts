@@ -11,7 +11,7 @@ export function useInfiniteScroll(props: UseInfiniteScrollOptions) {
   const {
     onLoadMore,
     isLoading = false,
-    threshold = 3,
+    threshold = 4,
     debounceMs = 150,
   } = props;
 

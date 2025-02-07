@@ -1,17 +1,15 @@
 import {
-  useInfiniteQuery,
-  QueryFunctionContext,
   InfiniteData,
+  useInfiniteQuery
 } from '@tanstack/react-query';
 import { useCallback, useRef } from 'react';
+import { Repository } from '../components/RepositoryCard';
 import {
+  fetchRepositoriesPage,
   MAX_PAGES,
   SEARCH_CRITERIAS,
-  fetchRepositoriesPage,
   SearchCriteria,
-  SearchResponse,
 } from '../lib/github';
-import { Repository } from '../components/RepositoryCard';
 
 const SEEN_STORAGE_KEY = 'github_seen_repositories';
 
@@ -121,9 +119,7 @@ export function useGitHub({ language = null }: UseGitHubOptions = {}) {
     >({
       queryKey: ['repositories', language],
       initialPageParam: null,
-      queryFn: async (
-        context: QueryFunctionContext<[string, string | null], PageParam | null>
-      ) => {
+      queryFn: async () => {
         const seen = (seenRef.current = loadSeenRepositories());
 
         async function tryFetchWithParams(
@@ -171,7 +167,7 @@ export function useGitHub({ language = null }: UseGitHubOptions = {}) {
                 ...repo,
                 searchCriteria: criteriaKey,
               })),
-              nextPage: { criteria: params.criteria, page: params.page + 1 },
+              nextPage: getNextSearchParams(seen),
             };
           } catch (error) {
             if (
@@ -186,7 +182,8 @@ export function useGitHub({ language = null }: UseGitHubOptions = {}) {
           }
         }
 
-        const initialParams = context.pageParam || getNextSearchParams(seen);
+        // Always get a random search params, ignore the pageParam
+        const initialParams = getNextSearchParams(seen);
         return tryFetchWithParams(initialParams);
       },
       getNextPageParam: (lastPage) => lastPage.nextPage,
@@ -205,6 +202,9 @@ export function useGitHub({ language = null }: UseGitHubOptions = {}) {
     isFetchingMore: isFetchingNextPage,
     error: error ? (error as Error).message : null,
     fetchMore: () => fetchNextPage(),
-    refresh: () => refetch(),
+    refresh: () => {
+      localStorage.removeItem(SEEN_STORAGE_KEY);
+      refetch();
+    },
   };
 }

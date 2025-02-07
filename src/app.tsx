@@ -32,7 +32,6 @@ export function App() {
   const handleSaveSettings = (language: Language) => {
     setSelectedLanguage(language);
     localStorage.setItem('preferred_language', language ?? '');
-    refresh();
   };
 
   return (

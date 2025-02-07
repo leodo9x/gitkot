@@ -12,8 +12,8 @@ export type SearchCriteria = {
   language?: string;
 };
 
-export const PER_PAGE = 20;
-export const MAX_PAGES = 50; // GitHub's 1000 result limit with 10 items per page
+export const PER_PAGE = 10;
+export const MAX_PAGES = 100; // GitHub's 1000 result limit with 10 items per page
 
 // search criteria in steps of 2000 i.e.
 // [700...2000, 2000...4000, 4000...6000, 6000...8000]
