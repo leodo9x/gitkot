@@ -81,7 +81,7 @@ export async function fetchRepositoriesPage(
   if (!response.ok) {
     if (response.status === 403) {
       throw new RateLimitExceededError(
-        'Rate limit exceeded. Please try again later.'
+        'Rate limit exceeded. Please add a GitHub token for extended access or try again later.'
       );
     }
 
@@ -92,7 +92,9 @@ export async function fetchRepositoriesPage(
     }
 
     if (response.status === 401) {
-      throw new InvalidTokenError('Invalid token. Please try again.');
+      throw new InvalidTokenError(
+        'Invalid token, please check your GitHub token and try again.'
+      );
     }
 
     throw new Error('Failed to fetch repositories');

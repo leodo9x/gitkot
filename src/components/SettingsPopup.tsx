@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, AlertCircle } from 'lucide-react';
 
 const POPULAR_LANGUAGES = [
   'JavaScript',
@@ -21,10 +21,11 @@ interface SettingsPopupProps {
   onSave: (language: string, token: string) => void;
   initialLanguage?: string;
   initialToken?: string;
+  error?: string;
 }
 
 export function SettingsPopup(props: SettingsPopupProps) {
-  const { onClose, onSave, initialLanguage, initialToken } = props;
+  const { onClose, onSave, initialLanguage, initialToken, error } = props;
 
   const [selectedLanguage, setSelectedLanguage] = useState(
     initialLanguage ?? ''
@@ -60,6 +61,13 @@ export function SettingsPopup(props: SettingsPopupProps) {
         {/* Content */}
         <div className='p-6'>
           <div className='space-y-4'>
+            {error && (
+              <div className='flex items-start gap-3 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400'>
+                <AlertCircle className='w-5 h-5 shrink-0 mt-0.5' />
+                <p className='text-sm'>{error}</p>
+              </div>
+            )}
+
             <div>
               <label
                 htmlFor='language'

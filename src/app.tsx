@@ -1,10 +1,17 @@
-import { Loader2, RefreshCcw, Settings } from 'lucide-react';
+import {
+  AlertTriangle,
+  Loader2,
+  RefreshCcw,
+  Settings,
+  XCircle,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Logo } from './components/Logo';
 import { RepositoryCard } from './components/RepositoryCard';
 import { SettingsPopup } from './components/SettingsPopup';
 import { useGitHub } from './hooks/use-github';
 import { useInfiniteScroll } from './hooks/use-infinite-scroll';
+import { InvalidTokenError } from './lib/errors';
 
 export function App() {
   const [showSettings, setShowSettings] = useState(false);
@@ -27,11 +34,11 @@ export function App() {
     setIsInitialized(true);
   }, []);
 
-  const { repositories, isLoading, isFetchingMore, fetchMore, refresh } =
-    useGitHub({ 
-      language: selectedLanguage, 
+  const { repositories, isLoading, isFetchingMore, fetchMore, error, refresh } =
+    useGitHub({
+      language: selectedLanguage,
       token: selectedToken,
-      enabled: isInitialized 
+      enabled: isInitialized,
     });
 
   const scrollContainerRef = useInfiniteScroll({
@@ -51,6 +58,11 @@ export function App() {
     localStorage.setItem('github_token', token);
   };
 
+  const getErrorMessage = (error: unknown) => {
+    if (!error) return undefined;
+    return error instanceof Error ? error.message : String(error);
+  };
+
   return (
     <div className='h-screen relative flex flex-col bg-gradient-to-b from-zinc-900 to-black text-white overflow-hidden'>
       {isFetchingMore && (
@@ -65,6 +77,7 @@ export function App() {
           onSave={handleSaveSettings}
           initialLanguage={selectedLanguage}
           initialToken={selectedToken}
+          error={getErrorMessage(error)}
         />
       )}
 
@@ -100,6 +113,16 @@ export function App() {
           <div className='flex items-center gap-2 border border-white/10 p-4 rounded-lg bg-white/5 backdrop-blur-xl'>
             <Loader2 className='size-5 animate-spin' strokeWidth={3} />
             <p className='text-white/70'>preparing feed...</p>
+          </div>
+        </div>
+      ) : error ? (
+        <div className='flex-1 flex justify-center items-center gap-2'>
+          <div className='flex flex-col justify-center text-center items-center gap-5 border border-white/10 py-8 px-4 rounded-lg bg-white/5 backdrop-blur-xl max-w-md mx-4'>
+            <AlertTriangle
+              className='size-8 text-red-400 shrink-0'
+              strokeWidth={2}
+            />
+            <p className='text-red-400 text-balance text-sm'>{error}</p>
           </div>
         </div>
       ) : (
