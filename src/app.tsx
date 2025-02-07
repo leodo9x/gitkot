@@ -34,12 +34,19 @@ export function App() {
     setIsInitialized(true);
   }, []);
 
-  const { repositories, isLoading, isFetchingMore, fetchMore, error, refresh } =
-    useGitHub({
-      language: selectedLanguage,
-      token: selectedToken,
-      enabled: isInitialized,
-    });
+  const {
+    repositories,
+    isLoading,
+    isFetchingMore,
+    fetchMore,
+    error,
+    refresh,
+    isRefetching,
+  } = useGitHub({
+    language: selectedLanguage,
+    token: selectedToken,
+    enabled: isInitialized,
+  });
 
   const scrollContainerRef = useInfiniteScroll({
     onLoadMore: fetchMore,
@@ -65,7 +72,7 @@ export function App() {
 
   return (
     <div className='h-screen relative flex flex-col bg-gradient-to-b from-zinc-900 to-black text-white overflow-hidden'>
-      {isFetchingMore && (
+      {(isFetchingMore || isLoading || isRefetching) && (
         <div className='absolute top-0 left-0 right-0 h-[2px] bg-white'>
           <div className='absolute top-0 left-0 right-0 h-full bg-gradient-to-r from-zinc-500 via-white to-zinc-500 animate-shimmer' />
         </div>

@@ -112,7 +112,7 @@ export function useGitHub(params: UseGitHubOptions = {}) {
     [language]
   );
 
-  const { data, isLoading, isFetchingNextPage, fetchNextPage, refetch, error } =
+  const { data, isLoading, isFetchingNextPage, fetchNextPage, refetch, error, isRefetching } =
     useInfiniteQuery<
       QueryResponse,
       Error,
@@ -201,6 +201,7 @@ export function useGitHub(params: UseGitHubOptions = {}) {
     repositories,
     isLoading,
     isFetchingMore: isFetchingNextPage,
+    isRefetching: isRefetching,
     error: error ? (error as Error).message : null,
     fetchMore: () => fetchNextPage(),
     refresh: () => {
