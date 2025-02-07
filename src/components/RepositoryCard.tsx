@@ -81,27 +81,27 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
       </div>
 
       {/* User Info */}
-      <div className='flex items-center space-x-4'>
+      <div className='flex items-center space-x-3'>
         <div className='relative'>
           <img
             src={repository.owner.avatar_url}
             alt={repository.owner.login}
-            className='w-16 h-16 sm:w-20 sm:h-20 rounded-full ring-2 ring-zinc-700/50'
+            className='w-12 h-12 rounded-full ring-1 ring-zinc-700/50'
           />
-          <span className='absolute -bottom-1 -right-1 w-6 h-6 sm:w-7 sm:h-7 bg-zinc-700 rounded-full flex items-center justify-center text-xs font-medium'>
+          <span className='absolute -bottom-1 -right-1 w-5 h-5 bg-zinc-700 rounded-full flex items-center justify-center text-xs font-medium'>
             JS
           </span>
         </div>
         <div className='flex-1 min-w-0'>
-          <div className='flex items-center justify-between mb-1'>
-            <h2 className='text-xl sm:text-2xl font-bold text-zinc-100 truncate'>
+          <div className='flex items-center justify-between mb-0.5'>
+            <h2 className='text-lg font-medium text-zinc-100 truncate'>
               {repository.owner.login}
             </h2>
-            <button className='bg-zinc-800 px-4 py-2 rounded-full text-sm hover:bg-zinc-700 transition-colors ml-2'>
+            <button className='bg-zinc-800 px-3 py-1.5 rounded-full text-xs hover:bg-zinc-700 transition-colors ml-2'>
               Follow
             </button>
           </div>
-          <p className='text-zinc-400 text-sm'>
+          <p className='text-zinc-400 text-xs'>
             Created on {new Date(repository.created_at).toLocaleDateString()}
           </p>
         </div>
@@ -127,15 +127,10 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
                 <CircleDot className='w-4 h-4 text-blue-400' />
                 {repository.license?.name || 'No License'}
               </div>
-
-              <div className='flex items-center gap-2 bg-zinc-800/50 px-3 py-1.5 rounded-full'>
-                <AlertCircle className='w-4 h-4 text-red-400' />
-                {repository.open_issues_count} issues
-              </div>
             </div>
           </div>
         </div>
-        <p className='text-zinc-300 text-sm sm:text-base mb-6 leading-relaxed'>
+        <p className='text-zinc-300 text-sm sm:text-base mb-6 leading-relaxed line-clamp-4'>
           {repository.description}
         </p>
         <div className='flex flex-wrap gap-1.5 sm:gap-2'>

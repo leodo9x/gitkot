@@ -34,7 +34,7 @@ const createRepository = (
     site_admin: false,
   },
   html_url: `https://github.com/Shenovrtre/${name}`,
-  description: `Repository ${index + 1}: A JavaScript-based project with amazing features and capabilities.`,
+  description: `Repository ${index + 1}: A JavaScript-based project with amazing features and capabilities. Some long text to see how it would look like. Add more details about the project and the technologies used. Also, more more more details to make this text longer. Now this is AI generated text. I am just pressing enter to make this text longer. Look at this text, it's so long that it's hard to believe it's AI generated.`,
   fork: false,
   url: `https://api.github.com/repos/Shenovrtre/${name}`,
   // ... other URL fields remain the same but with dynamic name
