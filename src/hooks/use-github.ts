@@ -1,10 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Repository } from '../components/RepositoryCard';
-import {
-  MAX_PAGES,
-  SEARCH_CRITERIAS,
-  searchRepositories,
-} from '../services/github';
+import { MAX_PAGES, SEARCH_CRITERIAS, searchRepositories } from '../lib/github';
 interface SeenRepositories {
   [key: string]: {
     seenPages: Set<number>;

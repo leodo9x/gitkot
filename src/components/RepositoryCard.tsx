@@ -1,4 +1,5 @@
 import { CircleDot, GitFork, GitPullRequest, Share2, Star } from 'lucide-react';
+import { shortNumber } from '../lib/number';
 export type License = {
   key: string;
   name: string;
@@ -69,7 +70,7 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
           <div className='flex flex-col items-center justify-center p-2'>
             <Star className='w-4 h-4 text-white/50 mb-1' />
             <div className='text-xl font-medium text-white'>
-              {repository.stargazers_count}
+              {shortNumber(repository.stargazers_count)}
             </div>
             <div className='text-[0.65rem] text-white/40 font-medium uppercase tracking-wider'>
               Stars
@@ -79,7 +80,7 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
           <div className='flex flex-col items-center justify-center p-2'>
             <GitFork className='w-4 h-4 text-white/50 mb-1' />
             <div className='text-xl font-medium text-white'>
-              {repository.forks_count}
+              {shortNumber(repository.forks_count)}
             </div>
             <div className='text-[0.65rem] text-white/40 font-medium uppercase tracking-wider'>
               Forks
@@ -89,7 +90,7 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
           <div className='flex flex-col items-center justify-center p-2'>
             <GitPullRequest className='w-4 h-4 text-white/50 mb-1' />
             <div className='text-xl font-medium text-white'>
-              {repository.watchers_count}
+              {shortNumber(repository.watchers_count)}
             </div>
             <div className='text-[0.65rem] text-white/40 font-medium uppercase tracking-wider'>
               Watchers
