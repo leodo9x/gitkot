@@ -10,6 +10,7 @@ export function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState<string>();
   const [selectedToken, setSelectedToken] = useState<string>();
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('preferred_language');
@@ -22,10 +23,16 @@ export function App() {
     if (savedToken) {
       setSelectedToken(savedToken);
     }
+
+    setIsInitialized(true);
   }, []);
 
   const { repositories, isLoading, isFetchingMore, fetchMore, refresh } =
-    useGitHub({ language: selectedLanguage, token: selectedToken });
+    useGitHub({ 
+      language: selectedLanguage, 
+      token: selectedToken,
+      enabled: isInitialized 
+    });
 
   const scrollContainerRef = useInfiniteScroll({
     onLoadMore: fetchMore,

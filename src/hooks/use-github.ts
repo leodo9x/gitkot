@@ -34,10 +34,11 @@ interface QueryResponse {
 interface UseGitHubOptions {
   language?: string;
   token?: string;
+  enabled?: boolean;
 }
 
 export function useGitHub(params: UseGitHubOptions = {}) {
-  const { language, token } = params;
+  const { language, token, enabled = true } = params;
 
   const seenRef = useRef<SeenRepositories>({});
 
@@ -121,6 +122,8 @@ export function useGitHub(params: UseGitHubOptions = {}) {
     >({
       queryKey: ['repositories', language],
       initialPageParam: null,
+      enabled,
+      retry: false,
       queryFn: async () => {
         const seen = (seenRef.current = loadSeenRepositories());
 
