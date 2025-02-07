@@ -50,94 +50,87 @@ interface RepositoryCardProps {
 
 export function RepositoryCard({ repository }: RepositoryCardProps) {
   return (
-    <div className='space-y-6 sm:space-y-8 h-full'>
+    <div className='grid grid-rows-[auto_minmax(0,1fr)_auto] h-full gap-4 sm:gap-6'>
       {/* Repository Stats Banner */}
-      <div className='bg-zinc-900/50 rounded-2xl p-4 border border-zinc-800/50 backdrop-blur-xl'>
-        <div className='grid grid-cols-3 gap-4'>
-          <div className='flex flex-col items-center justify-center p-3'>
-            <Star className='w-5 h-5 text-blue-400 mb-1.5' />
-            <div className='text-2xl font-bold text-zinc-100'>
+      <div className='bg-white/[0.03] rounded-2xl p-3 backdrop-blur-xl border border-white/[0.06] shadow-xl'>
+        <div className='grid grid-cols-3 divide-x divide-white/[0.06]'>
+          <div className='flex flex-col items-center justify-center p-2'>
+            <Star className='w-4 h-4 text-white/50 mb-1' />
+            <div className='text-xl font-medium text-white'>
               {repository.stargazers_count}
             </div>
-            <div className='text-xs text-zinc-400 font-medium'>Stars</div>
+            <div className='text-[0.65rem] text-white/40 font-medium uppercase tracking-wider'>
+              Stars
+            </div>
           </div>
 
-          <div className='flex flex-col items-center justify-center p-3 border-x border-zinc-800/50'>
-            <GitFork className='w-5 h-5 text-purple-400 mb-1.5' />
-            <div className='text-2xl font-bold text-zinc-100'>
+          <div className='flex flex-col items-center justify-center p-2'>
+            <GitFork className='w-4 h-4 text-white/50 mb-1' />
+            <div className='text-xl font-medium text-white'>
               {repository.forks_count}
             </div>
-            <div className='text-xs text-zinc-400 font-medium'>Forks</div>
+            <div className='text-[0.65rem] text-white/40 font-medium uppercase tracking-wider'>
+              Forks
+            </div>
           </div>
 
-          <div className='flex flex-col items-center justify-center p-3'>
-            <GitPullRequest className='w-5 h-5 text-green-400 mb-1.5' />
-            <div className='text-2xl font-bold text-zinc-100'>
+          <div className='flex flex-col items-center justify-center p-2'>
+            <GitPullRequest className='w-4 h-4 text-white/50 mb-1' />
+            <div className='text-xl font-medium text-white'>
               {repository.watchers_count}
             </div>
-            <div className='text-xs text-zinc-400 font-medium'>Watchers</div>
+            <div className='text-[0.65rem] text-white/40 font-medium uppercase tracking-wider'>
+              Watchers
+            </div>
           </div>
-        </div>
-      </div>
-
-      {/* User Info */}
-      <div className='flex items-center space-x-3'>
-        <div className='relative'>
-          <img
-            src={repository.owner.avatar_url}
-            alt={repository.owner.login}
-            className='w-12 h-12 rounded-full ring-1 ring-zinc-700/50'
-          />
-          <span className='absolute -bottom-1 -right-1 w-5 h-5 bg-zinc-700 rounded-full flex items-center justify-center text-xs font-medium'>
-            JS
-          </span>
-        </div>
-        <div className='flex-1 min-w-0'>
-          <div className='flex items-center justify-between mb-0.5'>
-            <h2 className='text-lg font-medium text-zinc-100 truncate'>
-              {repository.owner.login}
-            </h2>
-            <button className='bg-zinc-800 px-3 py-1.5 rounded-full text-xs hover:bg-zinc-700 transition-colors ml-2'>
-              Follow
-            </button>
-          </div>
-          <p className='text-zinc-400 text-xs'>
-            Created on {new Date(repository.created_at).toLocaleDateString()}
-          </p>
         </div>
       </div>
 
       {/* Repository Info */}
-      <div className='bg-zinc-900/30 rounded-2xl p-5 sm:p-8 border border-zinc-800/50'>
-        <div className='flex items-start justify-between gap-4 mb-5'>
+      <div className='bg-white/[0.03] rounded-2xl p-6 sm:p-8 backdrop-blur-xl border border-white/[0.06] shadow-xl flex flex-col min-h-0'>
+        {/* Repository Header with User Info */}
+        <div className='flex items-center gap-3 mb-4'>
+          <img
+            src={repository.owner.avatar_url}
+            alt={repository.owner.login}
+            className='w-8 h-8 rounded-full ring-1 ring-white/[0.06]'
+          />
           <div className='min-w-0'>
-            <h1 className='text-xl sm:text-2xl font-bold mb-2 text-zinc-100 truncate'>
+            <h1 className='text-xl font-semibold text-white truncate'>
               {repository.name}
             </h1>
-            <p className='text-zinc-500 text-xs mb-4'>
-              Created on {new Date(repository.created_at).toLocaleDateString()}
+            <p className='text-white/40 text-sm'>
+              by {repository.owner.login}
             </p>
-            <div className='flex flex-wrap items-center gap-2 sm:gap-3 text-sm'>
-              <div className='flex items-center gap-2 bg-zinc-800/50 px-3 py-1.5 rounded-full'>
-                <span className='w-2 h-2 rounded-full bg-yellow-400'></span>
-                {repository.language}
-              </div>
-
-              <div className='flex items-center gap-2 bg-zinc-800/50 px-3 py-1.5 rounded-full'>
-                <CircleDot className='w-4 h-4 text-blue-400' />
-                {repository.license?.name || 'No License'}
-              </div>
-            </div>
           </div>
         </div>
-        <p className='text-zinc-300 text-sm sm:text-base mb-6 leading-relaxed line-clamp-4'>
+
+        {/* Repository Meta Info */}
+        <div className='flex flex-wrap items-center gap-2 text-sm mb-4'>
+          {repository.language && (
+            <div className='flex items-center gap-2 bg-white/[0.03] px-3 py-1 rounded-full border border-white/[0.06]'>
+              <span className='w-2 h-2 rounded-full bg-yellow-400'></span>
+              <span className='text-white/70 text-sm'>{repository.language}</span>
+            </div>
+          )}
+
+          <div className='flex items-center gap-2 bg-white/[0.03] px-3 py-1 rounded-full border border-white/[0.06]'>
+            <CircleDot className='w-4 h-4 text-white/40' />
+            <span className='text-white/70 text-sm'>
+              {repository.license?.name || 'No License'}
+            </span>
+          </div>
+        </div>
+
+        <p className='text-white/70 text-base mb-6 leading-relaxed line-clamp-3 min-h-0'>
           {repository.description}
         </p>
-        <div className='flex flex-wrap gap-1.5 sm:gap-2'>
+
+        <div className='flex flex-wrap gap-2 mt-auto'>
           {repository?.topics?.map((topic) => (
             <span
               key={topic}
-              className='px-2.5 py-1 bg-zinc-800/30 text-zinc-400 rounded-full text-xs hover:bg-zinc-800/50 hover:text-zinc-300 transition-colors cursor-pointer'
+              className='px-3 py-1 bg-white/[0.03] border border-white/[0.06] text-white/60 rounded-full text-sm hover:bg-white/[0.06] hover:text-white transition-colors cursor-pointer'
             >
               #{topic}
             </span>
@@ -146,13 +139,13 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
       </div>
 
       {/* Action Buttons */}
-      <div className='flex space-x-3'>
-        <button className='flex-1 bg-zinc-100 text-zinc-900 p-3 rounded-xl font-semibold text-base hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2'>
+      <div className='flex gap-3'>
+        <button className='flex-1 bg-white/[0.03] border border-white/[0.06] text-white p-4 rounded-xl font-medium text-base hover:bg-white/[0.06] transition-colors flex items-center justify-center gap-2'>
           <Star className='w-5 h-5' />
           Star Repository
         </button>
-        <button className='w-14 h-14 flex items-center justify-center bg-zinc-800/50 rounded-xl hover:bg-zinc-700/50 transition-colors'>
-          <Share2 className='w-5 h-5' />
+        <button className='w-14 h-14 flex items-center justify-center bg-white/[0.03] border border-white/[0.06] rounded-xl hover:bg-white/[0.06] transition-colors'>
+          <Share2 className='w-5 h-5 text-white' />
         </button>
       </div>
     </div>

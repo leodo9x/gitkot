@@ -5,26 +5,26 @@ import { repositories } from './data/repositories';
 
 export function App() {
   return (
-    <div className='h-screen flex flex-col bg-zinc-950 text-white'>
+    <div className='h-screen flex flex-col bg-gradient-to-b from-zinc-900 to-black text-white overflow-hidden'>
       {/* Navigation */}
-      <nav className='px-4 sm:px-6 py-4 flex-none bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800/50'>
+      <nav className='px-4 sm:px-6 py-4 flex-none bg-white/5 backdrop-blur-xl border-b border-white/10'>
         <div className='flex items-center justify-between max-w-4xl mx-auto'>
-          <div className='flex items-center space-x-1'>
+          <div className='flex items-center space-x-2'>
             {['Discover', 'Latest', 'Following'].map((item) => (
               <button
                 key={item}
-                className={`px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all
                       ${
                         item === 'Discover'
-                          ? 'bg-zinc-800 text-white'
-                          : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
+                          ? 'bg-white text-black'
+                          : 'text-white/70 hover:text-white hover:bg-white/10'
                       }`}
               >
                 {item}
               </button>
             ))}
           </div>
-          <button className='p-2 text-zinc-400 hover:text-white transition-colors sm:hidden'>
+          <button className='p-2 text-white/70 hover:text-white transition-colors sm:hidden'>
             <RefreshCcw className='w-5 h-5' />
           </button>
         </div>
@@ -35,9 +35,9 @@ export function App() {
         {repositories.map((repository) => (
           <div
             key={repository.id}
-            className='snap-start h-[calc(100vh-57px)] flex items-center'
+            className='snap-start min-h-[calc(100vh-57px)] h-[calc(100vh-57px)] flex items-center py-6'
           >
-            <div className='w-full max-w-4xl mx-auto px-4 sm:px-6'>
+            <div className='w-full max-w-3xl mx-auto px-4 sm:px-6 h-full'>
               <RepositoryCard repository={repository} />
             </div>
           </div>
