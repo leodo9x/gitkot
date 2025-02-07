@@ -1,23 +1,24 @@
-import { Loader2, RefreshCcw } from 'lucide-react';
-import { useState } from 'react';
+import { Loader2, RefreshCcw, Settings } from 'lucide-react';
+import { Logo } from './components/Logo';
 import { RepositoryCard } from './components/RepositoryCard';
 import { useGitHub } from './hooks/use-github';
 import { useInfiniteScroll } from './hooks/use-infinite-scroll';
-import { Logo } from './components/Logo';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+import { useState, useEffect } from 'react';
+import { SettingsPopup, type Language } from './components/SettingsPopup';
 
 export function App() {
+  const [showSettings, setShowSettings] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState<Language>(null);
+
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem('preferred_language');
+    if (savedLanguage) {
+      setSelectedLanguage(savedLanguage as Language);
+    }
+  }, []);
+
   const { repositories, isLoading, isFetchingMore, fetchMore, refresh } =
-    useGitHub();
+    useGitHub({ language: selectedLanguage });
 
   const scrollContainerRef = useInfiniteScroll({
     onLoadMore: fetchMore,
@@ -28,6 +29,12 @@ export function App() {
     refresh();
   };
 
+  const handleSaveSettings = (language: Language) => {
+    setSelectedLanguage(language);
+    localStorage.setItem('preferred_language', language ?? '');
+    refresh();
+  };
+
   return (
     <div className='h-screen relative flex flex-col bg-gradient-to-b from-zinc-900 to-black text-white overflow-hidden'>
       {isFetchingMore && (
@@ -35,6 +42,15 @@ export function App() {
           <div className='absolute top-0 left-0 right-0 h-full bg-gradient-to-r from-zinc-500 via-white to-zinc-500 animate-shimmer' />
         </div>
       )}
+
+      {showSettings && (
+        <SettingsPopup
+          onClose={() => setShowSettings(false)}
+          onSave={handleSaveSettings}
+          initialLanguage={selectedLanguage}
+        />
+      )}
+
       {/* Navigation */}
       <nav className='px-4 sm:px-6 py-4 flex justify-between flex-row bg-white/5 backdrop-blur-xl border-b border-white/10 z-50'>
         <a
@@ -44,12 +60,21 @@ export function App() {
           <Logo className='size-8' />
           <span className='text-base font-medium'>gititok</span>
         </a>
-        <button
-          onClick={handleRefresh}
-          className='p-2 text-white/70 hover:text-white transition-colors'
-        >
-          <RefreshCcw className='w-5 h-5' />
-        </button>
+
+        <div className='flex items-center gap-2'>
+          <button
+            onClick={() => setShowSettings(true)}
+            className='p-2 text-white/70 hover:text-white transition-colors'
+          >
+            <Settings className='w-5 h-5' />
+          </button>
+          <button
+            onClick={handleRefresh}
+            className='p-2 text-white/70 hover:text-white transition-colors'
+          >
+            <RefreshCcw className='w-5 h-5' />
+          </button>
+        </div>
       </nav>
       {isLoading ? (
         <div className='flex-1 flex justify-center items-center gap-2'>
@@ -76,13 +101,5 @@ export function App() {
         </div>
       )}
     </div>
-  );
-}
-
-export function AppWrapper() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <App />
-    </QueryClientProvider>
   );
 }
