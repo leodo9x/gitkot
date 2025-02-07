@@ -4,9 +4,18 @@ import { RepositoryCard } from './components/RepositoryCard';
 import { useGitHub } from './hooks/use-github';
 import { useInfiniteScroll } from './hooks/use-infinite-scroll';
 import { Logo } from './components/Logo';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 export function App() {
-  const [activeFilter, setActiveFilter] = useState('discover');
   const { repositories, isLoading, isFetchingMore, fetchMore, refresh } =
     useGitHub();
 
@@ -67,5 +76,13 @@ export function App() {
         </div>
       )}
     </div>
+  );
+}
+
+export function AppWrapper() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
   );
 }

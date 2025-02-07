@@ -37,10 +37,15 @@ function buildSearchQuery(criteria: SearchCriteria): string {
   return parts.join(' ');
 }
 
-export async function searchRepositories(
-  criteria: SearchCriteria,
-  page: number
-): Promise<SearchResponse> {
+export interface FetchRepositoriesParams {
+  criteria: SearchCriteria;
+  page: number;
+}
+
+export async function fetchRepositoriesPage({
+  criteria,
+  page,
+}: FetchRepositoriesParams): Promise<SearchResponse> {
   // GitHub only allows access to first 1000 results
   if (page > MAX_PAGES) {
     throw new Error('Only first 1000 results are available');

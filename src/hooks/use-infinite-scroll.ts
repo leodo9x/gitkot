@@ -15,7 +15,7 @@ export function useInfiniteScroll(props: UseInfiniteScrollOptions) {
     debounceMs = 150,
   } = props;
 
-  const timeoutRef = useRef<number>();
+  const timeoutRef = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleScroll = useCallback(() => {

@@ -1,6 +1,16 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { useCallback, useRef } from 'react';
+import {
+  MAX_PAGES,
+  SEARCH_CRITERIAS,
+  fetchRepositoriesPage,
+  SearchCriteria,
+  SearchResponse,
+} from '../lib/github';
 import { Repository } from '../components/RepositoryCard';
-import { MAX_PAGES, SEARCH_CRITERIAS, searchRepositories } from '../lib/github';
+
+const SEEN_STORAGE_KEY = 'github_seen_repositories';
+
 interface SeenRepositories {
   [key: string]: {
     seenPages: Set<number>;
@@ -9,16 +19,19 @@ interface SeenRepositories {
   };
 }
 
-const SEEN_STORAGE_KEY = 'github_seen_repositories';
+interface PageParam {
+  criteria: SearchCriteria;
+  page: number;
+}
+
+interface QueryResponse extends SearchResponse {
+  nextPage: PageParam;
+  items: Array<Repository & { searchCriteria: string }>;
+}
 
 export function useGitHub() {
-  const [repositories, setRepositories] = useState<Repository[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isFetchingMore, setIsFetchingMore] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const seenRef = useRef<SeenRepositories>({});
 
-  // Load seen repositories from localStorage
-  // we do that to avoid fetching the same repositories again
   const loadSeenRepositories = useCallback((): SeenRepositories => {
     const stored = localStorage.getItem(SEEN_STORAGE_KEY);
     if (!stored) {
@@ -29,12 +42,10 @@ export function useGitHub() {
       if (key === 'seenPages') {
         return new Set(value);
       }
-
       return value;
     });
   }, []);
 
-  // Save seen repositories to localStorage
   const saveSeenRepositories = useCallback((seen: SeenRepositories) => {
     localStorage.setItem(
       SEEN_STORAGE_KEY,
@@ -42,19 +53,16 @@ export function useGitHub() {
         if (value instanceof Set) {
           return Array.from(value);
         }
-
         return value;
       })
     );
   }, []);
 
-  // Get next available search criteria and page
   const getNextSearchParams = useCallback((seen: SeenRepositories) => {
     const availableCriterias = SEARCH_CRITERIAS.filter(
       (criteria) => !seen[JSON.stringify(criteria)]?.exhausted
     );
 
-    // Reset seen repositories if all criterias are exhausted
     if (availableCriterias.length === 0) {
       localStorage.removeItem(SEEN_STORAGE_KEY);
       return {
@@ -72,34 +80,32 @@ export function useGitHub() {
       return { criteria, page: 1 };
     }
 
-    // Ensure we don't exceed GitHub's limit
     const effectiveTotalPages = Math.min(seenData.totalPages, MAX_PAGES);
 
-    // Find the next available page number
     for (let page = 1; page <= effectiveTotalPages; page++) {
       if (!seenData.seenPages.has(page)) {
         return { criteria, page };
       }
     }
 
-    // If no pages available, mark as exhausted and try next criteria
     seenData.exhausted = true;
     seen[criteriaKey] = seenData;
     saveSeenRepositories(seen);
-    return getNextSearchParams(seen); // Recursively try next criteria
+    return getNextSearchParams(seen);
   }, []);
 
-  // Fetch repositories
-  const fetchRepositories = useCallback(
-    async (isInitial: boolean = false) => {
-      try {
-        const seen = loadSeenRepositories();
-        const { criteria, page } = getNextSearchParams(seen);
+  const { data, isLoading, isFetchingNextPage, fetchNextPage, refetch, error } =
+    useInfiniteQuery<QueryResponse, Error>({
+      queryKey: ['repositories'],
+      initialPageParam: null as PageParam | null,
+      queryFn: async ({ pageParam = null }) => {
+        const seen = (seenRef.current = loadSeenRepositories());
+        const { criteria, page } = (pageParam ||
+          getNextSearchParams(seen)) as PageParam;
         const criteriaKey = JSON.stringify(criteria);
 
-        const response = await searchRepositories(criteria, page);
+        const response = await fetchRepositoriesPage({ criteria, page });
 
-        // Update seen pages
         const totalPages = Math.min(
           Math.ceil(response.total_count / 10),
           MAX_PAGES
@@ -114,59 +120,34 @@ export function useGitHub() {
         seenData.seenPages.add(page);
         seenData.exhausted = seenData.seenPages.size >= totalPages;
         seen[criteriaKey] = seenData;
-
         saveSeenRepositories(seen);
 
-        // Update repositories
-        const newRepositories = response.items.map((repo) => ({
-          ...repo,
-          searchCriteria: criteriaKey,
-        }));
-
-        setRepositories((prev) =>
-          isInitial ? newRepositories : [...prev, ...newRepositories]
+        return {
+          ...response,
+          items: response.items.map((repo) => ({
+            ...repo,
+            searchCriteria: criteriaKey,
+          })),
+          nextPage: { criteria, page: page + 1 },
+        };
+      },
+      getNextPageParam: (lastPage: QueryResponse) => lastPage.nextPage,
+      retry: (failureCount, error: Error) => {
+        return (
+          !error.message.includes('Rate limit exceeded') && failureCount < 3
         );
-        setError(null);
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : 'An error occurred';
-        setError(errorMessage);
+      },
+    });
 
-        // If we hit the rate limit, stop fetching more
-        if (errorMessage.includes('Rate limit exceeded')) {
-          setIsFetchingMore(false);
-        } else {
-          // For other errors, try again with different criteria
-          await fetchRepositories(isInitial);
-        }
-      } finally {
-        setIsLoading(false);
-        if (!error?.includes('Rate limit exceeded')) {
-          setIsFetchingMore(false);
-        }
-      }
-    },
-    [loadSeenRepositories, getNextSearchParams, saveSeenRepositories, error]
-  );
-
-  useEffect(() => {
-    if (repositories.length === 0) {
-      fetchRepositories(true);
-    }
-  }, [repositories.length, fetchRepositories]);
+  const repositories =
+    data?.pages.flatMap((page: QueryResponse) => page.items) ?? [];
 
   return {
     repositories,
     isLoading,
-    isFetchingMore,
-    error,
-    fetchMore: () => {
-      setIsFetchingMore(true);
-      fetchRepositories(false);
-    },
-    refresh: () => {
-      setIsLoading(true);
-      fetchRepositories(true);
-    },
+    isFetchingMore: isFetchingNextPage,
+    error: error ? (error as Error).message : null,
+    fetchMore: () => fetchNextPage(),
+    refresh: () => refetch(),
   };
 }
