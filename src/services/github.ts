@@ -16,22 +16,15 @@ export const PER_PAGE = 20;
 export const MAX_PAGES = 50; // GitHub's 1000 result limit with 10 items per page
 
 export const SEARCH_CRITERIAS: SearchCriteria[] = [
-  { stars: '<1000' },
-  { stars: '<2000' },
-  { stars: '<5000' },
-  { stars: '<8000' },
-  { stars: '<10000' },
-  { stars: '<15000' },
-  { stars: '<20000' },
-  { stars: '<30000' },
-  { stars: '<50000' },
-  { stars: '<70000' },
-  { stars: '<100000' },
-  { stars: '<200000' },
-  { stars: '<500000' },
-  { stars: '<1000000' },
-  { stars: '<2000000' },
-  { stars: '<5000000' },
+  { stars: '700...2000' },
+  { stars: '2000...4000' },
+  { stars: '4000...6000' },
+  { stars: '6000...8000' },
+  { stars: '8000...10000' },
+  { stars: '10000...20000' },
+  { stars: '20000...30000' },
+  { stars: '30000...50000' },
+  { stars: '>50000' },
 ];
 
 function buildSearchQuery(criteria: SearchCriteria): string {

@@ -1,10 +1,4 @@
-import {
-  CircleDot,
-  GitFork,
-  GitPullRequest,
-  Share2,
-  Star
-} from 'lucide-react';
+import { CircleDot, GitFork, GitPullRequest, Share2, Star } from 'lucide-react';
 export type License = {
   key: string;
   name: string;
@@ -147,7 +141,7 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
         </p>
 
         <div className='flex flex-wrap gap-2 mt-auto'>
-          {repository?.topics?.map((topic) => (
+          {repository?.topics?.slice(0, 6).map((topic) => (
             <span
               key={topic}
               className='px-3 py-1 bg-white/[0.03] border border-white/[0.06] text-white/60 rounded-full text-sm hover:bg-white/[0.06] hover:text-white transition-colors cursor-pointer hover:border-white/[0.1] group'

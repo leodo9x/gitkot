@@ -1,51 +1,20 @@
 import { Loader2, RefreshCcw } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
-import { Filters } from './components/Filters';
+import { useState } from 'react';
 import { RepositoryCard } from './components/RepositoryCard';
 import { useGitHub } from './hooks/use-github';
+import { useInfiniteScroll } from './hooks/use-infinite-scroll';
+import { Logo } from './components/Logo';
 
 export function App() {
   const [activeFilter, setActiveFilter] = useState('discover');
   const { repositories, isLoading, isFetchingMore, fetchMore, refresh } =
     useGitHub();
 
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useInfiniteScroll({
+    onLoadMore: fetchMore,
+    isLoading: isLoading || isFetchingMore,
+  });
 
-  // Replace the existing scroll handler effect with this one
-  useEffect(() => {
-    if (isLoading) {
-      return;
-    }
-
-    const scrollContainer = scrollContainerRef.current;
-    if (!scrollContainer) {
-      return;
-    }
-
-    const handleScroll = () => {
-      if (isFetchingMore) {
-        return;
-      }
-
-      const totalHeight = scrollContainer.scrollHeight;
-      const scrollPosition = scrollContainer.scrollTop;
-      const containerHeight = scrollContainer.clientHeight;
-
-      const itemHeight = containerHeight;
-      const itemsFromBottom = Math.floor(
-        (totalHeight - (scrollPosition + containerHeight)) / itemHeight
-      );
-
-      if (itemsFromBottom <= 3) {
-        fetchMore();
-      }
-    };
-
-    scrollContainer.addEventListener('scroll', handleScroll);
-    return () => scrollContainer.removeEventListener('scroll', handleScroll);
-  }, [isFetchingMore, isLoading, fetchMore]);
-
-  // Update the refresh button to use our new refresh function
   const handleRefresh = () => {
     refresh();
   };
@@ -59,7 +28,13 @@ export function App() {
       )}
       {/* Navigation */}
       <nav className='px-4 sm:px-6 py-4 flex justify-between flex-row bg-white/5 backdrop-blur-xl border-b border-white/10 z-50'>
-        <Filters activeFilter={activeFilter} onFilterChange={setActiveFilter} />
+        <a
+          href='https://github.com'
+          className='flex items-center gap-2 text-white/70 hover:text-white transition-colors'
+        >
+          <Logo className='size-8' />
+          <span className='text-base font-medium'>gititok</span>
+        </a>
         <button
           onClick={handleRefresh}
           className='p-2 text-white/70 hover:text-white transition-colors'

@@ -52,8 +52,8 @@ export function useGitHub() {
     );
   }, []);
 
-  // Get random search criteria and page
-  const getRandomSearchParams = useCallback((seen: SeenRepositories) => {
+  // Get next available search criteria and page
+  const getNextSearchParams = useCallback((seen: SeenRepositories) => {
     const availableCriterias = SEARCH_CRITERIAS.filter(
       (criteria) => !seen[JSON.stringify(criteria)]?.exhausted
     );
@@ -79,24 +79,18 @@ export function useGitHub() {
     // Ensure we don't exceed GitHub's limit
     const effectiveTotalPages = Math.min(seenData.totalPages, MAX_PAGES);
 
-    let page;
-    let attempts = 0;
-    const maxAttempts = effectiveTotalPages; // Prevent infinite loop
-
-    do {
-      page = Math.floor(Math.random() * effectiveTotalPages) + 1;
-      attempts++;
-
-      // If we've tried too many times, move to next criteria
-      if (attempts >= maxAttempts) {
-        seenData.exhausted = true;
-        seen[criteriaKey] = seenData;
-        saveSeenRepositories(seen);
-        return getRandomSearchParams(seen); // Recursively try next criteria
+    // Find the next available page number
+    for (let page = 1; page <= effectiveTotalPages; page++) {
+      if (!seenData.seenPages.has(page)) {
+        return { criteria, page };
       }
-    } while (seenData.seenPages.has(page));
+    }
 
-    return { criteria, page };
+    // If no pages available, mark as exhausted and try next criteria
+    seenData.exhausted = true;
+    seen[criteriaKey] = seenData;
+    saveSeenRepositories(seen);
+    return getNextSearchParams(seen); // Recursively try next criteria
   }, []);
 
   // Fetch repositories
@@ -104,7 +98,7 @@ export function useGitHub() {
     async (isInitial: boolean = false) => {
       try {
         const seen = loadSeenRepositories();
-        const { criteria, page } = getRandomSearchParams(seen);
+        const { criteria, page } = getNextSearchParams(seen);
         const criteriaKey = JSON.stringify(criteria);
 
         const response = await searchRepositories(criteria, page);
@@ -156,7 +150,7 @@ export function useGitHub() {
         }
       }
     },
-    [loadSeenRepositories, getRandomSearchParams, saveSeenRepositories, error]
+    [loadSeenRepositories, getNextSearchParams, saveSeenRepositories, error]
   );
 
   useEffect(() => {
