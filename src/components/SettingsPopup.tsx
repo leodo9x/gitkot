@@ -12,6 +12,18 @@ const POPULAR_LANGUAGES = [
   'Ruby',
   'PHP',
   'Swift',
+  'Kotlin',
+  'C#',
+  'Objective-C',
+  'Scala',
+  'Haskell',
+  'Erlang',
+  'Elixir',
+  'Clojure',
+  'Groovy',
+  'VimL',
+  'Lua',
+  'Perl',
 ] as const;
 
 export type Language = (typeof POPULAR_LANGUAGES)[number] | null;
@@ -38,9 +50,13 @@ export function SettingsPopup(props: SettingsPopupProps) {
   };
 
   return (
-    <div className='fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-md z-50'>
+    <div
+      className='fixed inset-0 flex items-center justify-center bg-black/30 backdrop-blur-md z-50'
+      onClick={onClose}
+    >
       <div
         className='bg-zinc-900/70 backdrop-blur-xl border border-white/10 rounded-2xl w-full max-w-md mx-6 overflow-hidden'
+        onClick={(e) => e.stopPropagation()}
         style={{
           boxShadow: '0 0 100px 20px rgba(0, 0, 0, 0.15)',
         }}
