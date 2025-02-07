@@ -3,12 +3,18 @@ import { useEffect, useState, useRef } from 'react';
 import { Filters } from './components/Filters';
 import { Repository, RepositoryCard } from './components/RepositoryCard';
 import { repositories as apiRepositories } from './data/repositories';
+import { useGitHubRepositories } from './hooks/useGitHubRepositories';
 
 export function App() {
   const [activeFilter, setActiveFilter] = useState('discover');
-  const [isLoading, setIsLoading] = useState(true);
-  const [repositories, setRepositories] = useState<Repository[]>([]);
-  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const {
+    repositories,
+    isLoading,
+    isFetchingMore,
+    error,
+    fetchMore,
+    refresh
+  } = useGitHubRepositories();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   function fetchRepositories(): Promise<Repository[]> {
@@ -26,7 +32,7 @@ export function App() {
     });
   }, []);
 
-  // Add scroll handler
+  // Replace the existing scroll handler effect with this one
   useEffect(() => {
     if (isLoading) {
       return;
@@ -46,24 +52,24 @@ export function App() {
       const scrollPosition = scrollContainer.scrollTop;
       const containerHeight = scrollContainer.clientHeight;
 
-      // Calculate how many repositories are left before the end
-      const itemHeight = containerHeight; // Since each item takes full viewport height
+      const itemHeight = containerHeight;
       const itemsFromBottom = Math.floor(
         (totalHeight - (scrollPosition + containerHeight)) / itemHeight
       );
 
       if (itemsFromBottom <= 3) {
-        setIsFetchingMore(true);
-        fetchRepositories().then((newRepositories) => {
-          setRepositories((prev) => [...prev, ...newRepositories]);
-          setIsFetchingMore(false);
-        });
+        fetchMore();
       }
     };
 
     scrollContainer.addEventListener('scroll', handleScroll);
     return () => scrollContainer.removeEventListener('scroll', handleScroll);
-  }, [isFetchingMore, isLoading]);
+  }, [isFetchingMore, isLoading, fetchMore]);
+
+  // Update the refresh button to use our new refresh function
+  const handleRefresh = () => {
+    refresh();
+  };
 
   return (
     <div className='h-screen relative flex flex-col bg-gradient-to-b from-zinc-900 to-black text-white overflow-hidden'>
@@ -75,7 +81,10 @@ export function App() {
       {/* Navigation */}
       <nav className='px-4 sm:px-6 py-4 flex justify-between flex-row bg-white/5 backdrop-blur-xl border-b border-white/10 z-50'>
         <Filters activeFilter={activeFilter} onFilterChange={setActiveFilter} />
-        <button className='p-2 text-white/70 hover:text-white transition-colors'>
+        <button 
+          onClick={handleRefresh}
+          className='p-2 text-white/70 hover:text-white transition-colors'
+        >
           <RefreshCcw className='w-5 h-5' />
         </button>
       </nav>
