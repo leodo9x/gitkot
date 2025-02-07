@@ -1,29 +1,23 @@
 // Add these imports at the top
 import { RefreshCcw } from 'lucide-react';
+import { useState } from 'react';
+import { Filters } from './components/Filters';
 import { RepositoryCard } from './components/RepositoryCard';
 import { repositories } from './data/repositories';
 
 export function App() {
+  const [activeFilter, setActiveFilter] = useState('discover');
+
+  console.log(activeFilter);
   return (
     <div className='h-screen flex flex-col bg-gradient-to-b from-zinc-900 to-black text-white overflow-hidden'>
       {/* Navigation */}
-      <nav className='px-4 sm:px-6 py-4 flex-none bg-white/5 backdrop-blur-xl border-b border-white/10'>
+      <nav className='px-4 sm:px-6 py-4 flex-none bg-white/5 backdrop-blur-xl border-b border-white/10 z-50'>
         <div className='flex items-center justify-between max-w-4xl mx-auto'>
-          <div className='flex items-center space-x-2'>
-            {['Discover', 'Latest', 'Following'].map((item) => (
-              <button
-                key={item}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all
-                      ${
-                        item === 'Discover'
-                          ? 'bg-white text-black'
-                          : 'text-white/70 hover:text-white hover:bg-white/10'
-                      }`}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
+          <Filters
+            activeFilter={activeFilter}
+            onFilterChange={setActiveFilter}
+          />
           <button className='p-2 text-white/70 hover:text-white transition-colors sm:hidden'>
             <RefreshCcw className='w-5 h-5' />
           </button>

@@ -49,18 +49,6 @@ interface RepositoryCardProps {
 }
 
 export function RepositoryCard({ repository }: RepositoryCardProps) {
-  // Update the gradient function with more subtle, cohesive colors
-  const getGradient = (opacity: number = 20) => {
-    const gradients = [
-      `from-white/[0.05] to-white/[0.02]`,
-      `from-blue-500/[0.05] to-blue-400/[0.02]`,
-      `from-emerald-500/[0.05] to-emerald-400/[0.02]`,
-      `from-purple-500/[0.05] to-purple-400/[0.02]`,
-      `from-amber-500/[0.05] to-amber-400/[0.02]`
-    ];
-    return gradients[Math.abs(repository.name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % gradients.length];
-  };
-
   // Update language colors to be more subtle
   const getLanguageColor = () => {
     const colors: { [key: string]: string } = {
@@ -73,7 +61,9 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
       Go: 'bg-cyan-400/80',
       Rust: 'bg-orange-500/80',
       PHP: 'bg-indigo-400/80',
-      default: 'bg-gray-400/80'
+      Solidity: 'bg-purple-400/80',
+      'C#': 'bg-red-400/80',
+      default: 'bg-gray-400/80',
     };
     return colors[repository.language] || colors.default;
   };
@@ -128,9 +118,7 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
             <h1 className='text-xl font-semibold text-white truncate'>
               {repository.name}
             </h1>
-            <p className='text-white/40 text-sm'>
-              by {repository.owner.login}
-            </p>
+            <p className='text-white/40 text-sm'>by {repository.owner.login}</p>
           </div>
         </div>
 
@@ -138,8 +126,12 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
         <div className='flex flex-wrap items-center gap-2 text-sm mb-4'>
           {repository.language && (
             <div className='flex items-center gap-2 bg-white/[0.03] px-3 py-1 rounded-full border border-white/[0.06] hover:bg-white/[0.06] transition-colors'>
-              <span className={`w-2 h-2 rounded-full ${getLanguageColor()}`}></span>
-              <span className='text-white/70 text-sm'>{repository.language}</span>
+              <span
+                className={`w-2 h-2 rounded-full ${getLanguageColor()}`}
+              ></span>
+              <span className='text-white/70 text-sm'>
+                {repository.language}
+              </span>
             </div>
           )}
 
@@ -161,7 +153,8 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
               key={topic}
               className='px-3 py-1 bg-white/[0.03] border border-white/[0.06] text-white/60 rounded-full text-sm hover:bg-white/[0.06] hover:text-white transition-colors cursor-pointer hover:border-white/[0.1] group'
             >
-              <span className='text-white/60 group-hover:text-white/90'>#</span>{topic}
+              <span className='text-white/60 group-hover:text-white/90'>#</span>
+              {topic}
             </span>
           ))}
         </div>
@@ -169,7 +162,7 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
 
       {/* Action Buttons */}
       <div className='flex gap-3'>
-        <button 
+        <button
           className='flex-1 bg-white/[0.05] text-white p-4 rounded-xl 
             font-medium text-base hover:bg-white/[0.08] transition-all 
             flex items-center justify-center gap-2 border border-white/[0.1] 
