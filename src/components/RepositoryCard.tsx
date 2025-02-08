@@ -14,7 +14,7 @@ export type Owner = {
   avatar_url: string;
   html_url: string;
   type: string;
-  [key: string]: any; // for other properties
+  [key: string]: any;
 };
 
 export type Repository = {
