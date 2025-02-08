@@ -64,7 +64,7 @@ export function App() {
   };
 
   return (
-    <div className='h-screen relative flex flex-col bg-gradient-to-b from-zinc-900 to-black text-white overflow-hidden'>
+    <div className='h-dvh relative flex flex-col bg-gradient-to-b from-zinc-900 to-black text-white overflow-hidden'>
       {(isFetchingMore || isLoading || isRefetching) && <LoadingBar />}
 
       {showSettings && (
