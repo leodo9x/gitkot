@@ -12,8 +12,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png'],
       manifest: {
-        name: 'GitiTok',
-        short_name: 'GitiTok',
+        name: 'gitkot',
+        short_name: 'gitkot',
         description: 'Discover trending GitHub repositories in a TikTok-style interface',
         theme_color: '#18181b',
         background_color: '#18181b',

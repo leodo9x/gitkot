@@ -1,6 +1,6 @@
 {
-  "name": "GitiTok",
-  "short_name": "GitiTok",
+  "name": "gitkot",
+  "short_name": "gitkot",
   "description": "Discover trending GitHub repositories in a TikTok-style interface",
   "start_url": "/",
   "display": "standalone",
