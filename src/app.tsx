@@ -1,16 +1,24 @@
-import { AlertTriangle, Loader2, RefreshCcw, Settings } from 'lucide-react';
+import {
+  AlertTriangle,
+  Loader2,
+  RefreshCcw,
+  Settings,
+  WifiOff,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Logo } from './components/Logo';
 import { RepositoryCard } from './components/RepositoryCard';
 import { SettingsPopup } from './components/SettingsPopup';
 import { useGitHub } from './hooks/use-github';
 import { useInfiniteScroll } from './hooks/use-infinite-scroll';
+import { useOnlineStatus } from './hooks/use-online-status';
 
 export function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState<string>();
   const [selectedToken, setSelectedToken] = useState<string>();
   const [isInitialized, setIsInitialized] = useState(false);
+  const isOnline = useOnlineStatus();
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('preferred_language');
@@ -108,7 +116,22 @@ export function App() {
           </div>
         </div>
       </nav>
-      {isLoading ? (
+      {!isOnline ? (
+        <div className='flex-1 flex justify-center items-center gap-2'>
+          <div className='flex flex-col justify-center text-center items-center gap-5 border border-white/10 py-8 px-4 rounded-lg bg-white/5 backdrop-blur-xl max-w-md mx-4'>
+            <WifiOff
+              className='size-8 text-yellow-400 shrink-0'
+              strokeWidth={2}
+            />
+            <div className='space-y-2'>
+              <p className='text-yellow-400 font-medium'>You're offline</p>
+              <p className='text-yellow-400/70 text-sm text-balance'>
+                Please check your internet connection and try again
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : isLoading ? (
         <div className='flex-1 flex justify-center items-center gap-2'>
           <div className='flex items-center gap-2 border border-white/10 p-4 rounded-lg bg-white/5 backdrop-blur-xl'>
             <Loader2 className='size-5 animate-spin' strokeWidth={3} />
