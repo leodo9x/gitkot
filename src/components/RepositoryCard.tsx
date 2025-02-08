@@ -108,7 +108,7 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
             alt={repository.owner.login}
             className='w-8 h-8 rounded-full ring-1 ring-white/[0.06]'
           />
-          <div className='min-w-0'>
+          <div className='inline-grid'>
             <h1 className='text-xl font-semibold text-white truncate'>
               {repository.name}
             </h1>
