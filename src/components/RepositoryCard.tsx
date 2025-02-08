@@ -156,7 +156,9 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
 
       {/* Action Buttons */}
       <div className='flex gap-3'>
-        <button
+        <a
+          href={repository.html_url}
+          target='_blank'
           className='flex-1 bg-white/[0.05] text-white p-4 rounded-xl 
             font-medium text-base hover:bg-white/[0.08] transition-all 
             flex items-center justify-center gap-2 border border-white/[0.1] 
@@ -164,7 +166,7 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
         >
           <Star className='w-5 h-5' />
           Star Repository
-        </button>
+        </a>
         <button className='w-14 h-14 flex items-center justify-center bg-white/[0.03] border border-white/[0.06] rounded-xl hover:bg-white/[0.06] transition-colors group'>
           <Share2 className='w-5 h-5 text-white/70 group-hover:text-white transition-colors' />
         </button>
