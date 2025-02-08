@@ -64,19 +64,25 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
   return (
     <div className='grid grid-rows-[minmax(0,1fr)_auto_auto] h-full gap-4 sm:gap-6'>
       <div className='bg-white/[0.03] rounded-2xl p-6 sm:p-8 backdrop-blur-xl border border-white/[0.06] shadow-xl flex flex-col min-h-0 hover:bg-white/[0.04] transition-colors'>
-        <div className='flex items-center gap-3 mb-4'>
+        <a
+          href={repository.html_url}
+          target='_blank'
+          className='flex items-center gap-3 mb-4'
+        >
           <img
             src={repository.owner.avatar_url}
             alt={repository.owner.login}
             className='w-8 h-8 rounded-full ring-1 ring-white/[0.06]'
           />
-          <div className='inline-grid'>
-            <h1 className='text-xl font-semibold text-white truncate'>
+          <span className='inline-grid'>
+            <span className='text-xl font-semibold text-white truncate'>
               {repository.name}
-            </h1>
-            <p className='text-white/40 text-sm'>by {repository.owner.login}</p>
-          </div>
-        </div>
+            </span>
+            <span className='text-white/40 text-sm'>
+              by {repository.owner.login}
+            </span>
+          </span>
+        </a>
 
         <div className='flex flex-wrap items-center gap-2 text-sm mb-4'>
           {repository.language && (
@@ -98,7 +104,7 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
           </div>
         </div>
 
-        <p className='text-white/70 text-base mb-6 leading-relaxed line-clamp-3 min-h-0 [overflow-wrap:anywhere]'>
+        <p className='text-white/70 text-base leading-relaxed line-clamp-3 min-h-0 [overflow-wrap:anywhere]'>
           {repository.description}
         </p>
       </div>
