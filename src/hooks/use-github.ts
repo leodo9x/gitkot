@@ -70,7 +70,6 @@ export function useGitHub(params: UseGitHubOptions = {}) {
 
   const getNextSearchParams = useCallback(
     (seen: SeenRepositories) => {
-      // Try with language filter
       const availableCriterias = SEARCH_CRITERIAS.map((criteria) => ({
         ...criteria,
         language: language || undefined,
@@ -112,88 +111,95 @@ export function useGitHub(params: UseGitHubOptions = {}) {
     [language]
   );
 
-  const { data, isLoading, isFetchingNextPage, fetchNextPage, refetch, error, isRefetching } =
-    useInfiniteQuery<
-      QueryResponse,
-      Error,
-      InfiniteData<QueryResponse>,
-      [string, string | undefined],
-      PageParam | null
-    >({
-      queryKey: ['repositories', language],
-      initialPageParam: null,
-      enabled,
-      retry: false,
-      queryFn: async () => {
-        const seen = (seenRef.current = loadSeenRepositories());
+  const {
+    data,
+    isLoading,
+    isFetchingNextPage,
+    fetchNextPage,
+    refetch,
+    error,
+    isRefetching,
+  } = useInfiniteQuery<
+    QueryResponse,
+    Error,
+    InfiniteData<QueryResponse>,
+    [string, string | undefined],
+    PageParam | null
+  >({
+    queryKey: ['repositories', language],
+    initialPageParam: null,
+    enabled,
+    retry: false,
+    queryFn: async () => {
+      const seen = (seenRef.current = loadSeenRepositories());
 
-        async function tryFetchWithParams(
-          params: PageParam
-        ): Promise<QueryResponse> {
-          const criteriaKey = JSON.stringify(params.criteria);
+      async function tryFetchWithParams(
+        params: PageParam
+      ): Promise<QueryResponse> {
+        const criteriaKey = JSON.stringify(params.criteria);
 
-          try {
-            const response = await fetchRepositoriesPage(params, token);
+        try {
+          const response = await fetchRepositoriesPage(params, token);
 
-            if (response.total_count === 0) {
-              // If no results found, mark this criteria as exhausted and try next one
-              const seenData = seen[criteriaKey] || {
-                seenPages: new Set(),
-                totalPages: 0,
-                exhausted: true,
-              };
-              seen[criteriaKey] = seenData;
-              saveSeenRepositories(seen);
-
-              // Try next criteria recursively until we find results or run out of criteria
-              const nextParams = getNextSearchParams(seen);
-              return tryFetchWithParams(nextParams);
-            }
-
-            const totalPages = Math.min(
-              Math.ceil(response.total_count / 10),
-              MAX_PAGES
-            );
-
+          if (response.total_count === 0) {
+            // If no results found, mark this criteria as exhausted and try next one
             const seenData = seen[criteriaKey] || {
               seenPages: new Set(),
-              totalPages,
-              exhausted: false,
+              totalPages: 0,
+              exhausted: true,
             };
-
-            seenData.seenPages.add(params.page);
-            seenData.exhausted = seenData.seenPages.size >= totalPages;
             seen[criteriaKey] = seenData;
             saveSeenRepositories(seen);
 
-            return {
-              total_count: response.total_count,
-              items: response.items.map((repo) => ({
-                ...repo,
-                searchCriteria: criteriaKey,
-              })),
-              nextPage: getNextSearchParams(seen),
-            };
-          } catch (error) {
-            if (
-              error instanceof RateLimitExceededError ||
-              error instanceof OnlyFirst1000ResultsError ||
-              error instanceof InvalidTokenError
-            ) {
-              throw error;
-            }
-            // For other errors, try next criteria
+            // Try next criteria recursively until we find results or run out of criteria
             const nextParams = getNextSearchParams(seen);
             return tryFetchWithParams(nextParams);
           }
-        }
 
-        // Always get a random search params, ignore the pageParam
-        const initialParams = getNextSearchParams(seen);
-        return tryFetchWithParams(initialParams);
-      },
-      getNextPageParam: (lastPage) => lastPage.nextPage,
-    });
+          const totalPages = Math.min(
+            Math.ceil(response.total_count / 10),
+            MAX_PAGES
+          );
+
+          const seenData = seen[criteriaKey] || {
+            seenPages: new Set(),
+            totalPages,
+            exhausted: false,
+          };
+
+          seenData.seenPages.add(params.page);
+          seenData.exhausted = seenData.seenPages.size >= totalPages;
+          seen[criteriaKey] = seenData;
+          saveSeenRepositories(seen);
+
+          return {
+            total_count: response.total_count,
+            items: response.items.map((repo) => ({
+              ...repo,
+              searchCriteria: criteriaKey,
+            })),
+            nextPage: getNextSearchParams(seen),
+          };
+        } catch (error) {
+          if (
+            error instanceof RateLimitExceededError ||
+            error instanceof OnlyFirst1000ResultsError ||
+            error instanceof InvalidTokenError
+          ) {
+            throw error;
+          }
+
+          // For other errors, try next criteria
+          const nextParams = getNextSearchParams(seen);
+          return tryFetchWithParams(nextParams);
+        }
+      }
+
+      const initialParams = getNextSearchParams(seen);
+      return tryFetchWithParams(initialParams);
+    },
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+  });
 
   const repositories = data?.pages.flatMap((page) => page.items) ?? [];
 

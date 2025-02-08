@@ -35,7 +35,7 @@ export type Repository = {
   topics: string[];
   license: License;
   visibility: string;
-  [key: string]: any; // for other properties
+  [key: string]: any;
 };
 
 interface RepositoryCardProps {
@@ -43,7 +43,6 @@ interface RepositoryCardProps {
 }
 
 export function RepositoryCard({ repository }: RepositoryCardProps) {
-  // Update language colors to be more subtle
   const getLanguageColor = () => {
     const colors: { [key: string]: string } = {
       JavaScript: 'bg-yellow-300/80',
@@ -167,9 +166,23 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
           <Star className='w-5 h-5' />
           Star Repository
         </a>
-        <button className='w-14 h-14 flex items-center justify-center bg-white/[0.03] border border-white/[0.06] rounded-xl hover:bg-white/[0.06] transition-colors group'>
-          <Share2 className='w-5 h-5 text-white/70 group-hover:text-white transition-colors' />
-        </button>
+        {navigator.share && (
+          <button
+            onClick={() => {
+              navigator;
+              navigator
+                .share({
+                  title: repository.name,
+                  text: repository.description,
+                  url: repository.html_url,
+                })
+                .catch((error) => console.log('Error sharing:', error));
+            }}
+            className='w-14 h-14 flex items-center justify-center bg-white/[0.03] border border-white/[0.06] rounded-xl hover:bg-white/[0.06] transition-colors group'
+          >
+            <Share2 className='w-5 h-5 text-white/70 group-hover:text-white transition-colors' />
+          </button>
+        )}
       </div>
     </div>
   );

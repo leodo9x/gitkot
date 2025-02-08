@@ -1,17 +1,10 @@
-import {
-  AlertTriangle,
-  Loader2,
-  RefreshCcw,
-  Settings,
-  XCircle,
-} from 'lucide-react';
+import { AlertTriangle, Loader2, RefreshCcw, Settings } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Logo } from './components/Logo';
 import { RepositoryCard } from './components/RepositoryCard';
 import { SettingsPopup } from './components/SettingsPopup';
 import { useGitHub } from './hooks/use-github';
 import { useInfiniteScroll } from './hooks/use-infinite-scroll';
-import { InvalidTokenError } from './lib/errors';
 
 export function App() {
   const [showSettings, setShowSettings] = useState(false);
