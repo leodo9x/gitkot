@@ -17,7 +17,7 @@ export function RepositoryList(props: RepositoryListProps) {
       {repositories.map((repository) => (
         <div
           key={repository.id}
-          className='snap-start min-h-[calc(100vh-60px)] h-[calc(100vh-60px)] flex items-center py-6'
+          className='snap-start min-h-[calc(100dvh-60px)] h-[calc(100dvh-60px)] flex items-center py-6'
         >
           <div className='w-full max-w-3xl mx-auto px-4 sm:px-6 h-full'>
             <RepositoryCard repository={repository} />
