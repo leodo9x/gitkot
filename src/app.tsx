@@ -80,6 +80,7 @@ export function App() {
       <Navigation
         onSettingsClick={() => setShowSettings(true)}
         onRefreshClick={refresh}
+        isDataLoading={isFetchingMore || isLoading || isRefetching}
       />
 
       {!isOnline ? (
