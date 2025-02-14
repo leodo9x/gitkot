@@ -9,6 +9,7 @@ const POPULAR_LANGUAGES = [
   'Go',
   'Rust',
   'C++',
+  'C',
   'Ruby',
   'PHP',
   'Swift',
