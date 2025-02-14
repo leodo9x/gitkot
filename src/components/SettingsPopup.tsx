@@ -101,7 +101,11 @@ export function SettingsPopup(props: SettingsPopupProps) {
                 >
                   <option value=''>All Languages</option>
                   {POPULAR_LANGUAGES.map((lang) => (
-                    <option key={lang} value={lang}>
+                    <option
+                      style={{ backgroundColor: 'black', color: 'white' }}
+                      key={lang}
+                      value={lang}
+                    >
                       {lang}
                     </option>
                   ))}
