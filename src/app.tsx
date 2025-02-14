@@ -9,17 +9,20 @@ import { SettingsPopup } from './components/SettingsPopup';
 import { useGitHub } from './hooks/use-github';
 import { useInfiniteScroll } from './hooks/use-infinite-scroll';
 import { useOnlineStatus } from './hooks/use-online-status';
+import { FeedType } from './lib/github';
 
 export function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState<string>();
   const [selectedToken, setSelectedToken] = useState<string>();
+  const [selectedFeedType, setSelectedFeedType] = useState<FeedType>('random');
   const [isInitialized, setIsInitialized] = useState(false);
   const isOnline = useOnlineStatus();
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('preferred_language');
     const savedToken = localStorage.getItem('github_token');
+    const savedFeedType = localStorage.getItem('feed_type') as FeedType;
 
     if (savedLanguage) {
       setSelectedLanguage(savedLanguage);
@@ -27,6 +30,10 @@ export function App() {
 
     if (savedToken) {
       setSelectedToken(savedToken);
+    }
+
+    if (savedFeedType) {
+      setSelectedFeedType(savedFeedType);
     }
 
     setIsInitialized(true);
@@ -44,6 +51,7 @@ export function App() {
     language: selectedLanguage,
     token: selectedToken,
     enabled: isInitialized,
+    feedType: selectedFeedType,
   });
 
   const scrollContainerRef = useInfiniteScroll({
@@ -51,11 +59,13 @@ export function App() {
     isLoading: isLoading || isFetchingMore,
   });
 
-  const handleSaveSettings = (language: string, token: string) => {
+  const handleSaveSettings = (language: string, token: string, feedType: FeedType) => {
     setSelectedLanguage(language);
     setSelectedToken(token);
+    setSelectedFeedType(feedType);
     localStorage.setItem('preferred_language', language);
     localStorage.setItem('github_token', token);
+    localStorage.setItem('feed_type', feedType);
   };
 
   const getErrorMessage = (error: unknown) => {
@@ -73,7 +83,9 @@ export function App() {
           onSave={handleSaveSettings}
           initialLanguage={selectedLanguage}
           initialToken={selectedToken}
+          initialFeedType={selectedFeedType}
           error={getErrorMessage(error)}
+          onRefresh={refresh}
         />
       )}
 

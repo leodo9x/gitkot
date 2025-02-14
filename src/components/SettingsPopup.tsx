@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { X, AlertCircle } from 'lucide-react';
+import { FeedType } from '../lib/github';
 
 const POPULAR_LANGUAGES = [
   'JavaScript',
@@ -31,22 +32,28 @@ export type Language = (typeof POPULAR_LANGUAGES)[number] | null;
 
 interface SettingsPopupProps {
   onClose: () => void;
-  onSave: (language: string, token: string) => void;
+  onSave: (language: string, token: string, feedType: FeedType) => void;
   initialLanguage?: string;
   initialToken?: string;
+  initialFeedType?: FeedType;
   error?: string;
+  onRefresh: () => void;
 }
 
 export function SettingsPopup(props: SettingsPopupProps) {
-  const { onClose, onSave, initialLanguage, initialToken, error } = props;
+  const { onClose, onSave, initialLanguage, initialToken, initialFeedType, error, onRefresh } = props;
 
   const [selectedLanguage, setSelectedLanguage] = useState(
     initialLanguage ?? ''
   );
   const [token, setToken] = useState(initialToken ?? '');
+  const [selectedFeedType, setSelectedFeedType] = useState<FeedType>(
+    initialFeedType ?? 'random'
+  );
 
   const handleSave = () => {
-    onSave(selectedLanguage, token);
+    onSave(selectedLanguage, token, selectedFeedType);
+    onRefresh();
     onClose();
   };
 
@@ -128,6 +135,46 @@ export function SettingsPopup(props: SettingsPopupProps) {
               </div>
               <p className='mt-2 text-sm text-white/50'>
                 Select a language to filter repositories
+              </p>
+            </div>
+
+            <div>
+              <label
+                htmlFor='feedType'
+                className='block text-sm font-medium text-white/70 mb-2'
+              >
+                Feed Type
+              </label>
+              <div className='relative'>
+                <select
+                  id='feedType'
+                  value={selectedFeedType}
+                  onChange={(e) => setSelectedFeedType(e.target.value as FeedType)}
+                  className='w-full bg-black/20 text-white border border-white/10 rounded-xl px-4 py-3 appearance-none focus:outline-none focus:ring-2 focus:ring-white/20 transition-all'
+                >
+                  <option value=''>Feed Type</option>
+                  <option value='new'>New</option>
+                  <option value='random'>Random</option>
+                </select>
+                <div className='absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none'>
+                  <svg
+                    className='w-4 h-4 text-white/40'
+                    fill='none'
+                    viewBox='0 0 24 24'
+                    stroke='currentColor'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M19 9l-7 7-7-7'
+                    />
+                  </svg>
+                </div>
+              </div>
+              <p className='mt-2 text-sm text-white/50'>
+                Random feed will show a random repository each time. New feed
+                will show the most recently created repositories.
               </p>
             </div>
 

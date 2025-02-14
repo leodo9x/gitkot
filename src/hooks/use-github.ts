@@ -4,8 +4,9 @@ import { Repository } from '../components/RepositoryCard';
 import {
   fetchRepositoriesPage,
   MAX_PAGES,
-  SEARCH_CRITERIAS,
+  getSearchCriterias,
   SearchCriteria,
+  FeedType,
 } from '../lib/github';
 import { InvalidTokenError, OnlyFirst1000ResultsError } from '../lib/errors';
 import { RateLimitExceededError } from '../lib/errors';
@@ -35,10 +36,11 @@ interface UseGitHubOptions {
   language?: string;
   token?: string;
   enabled?: boolean;
+  feedType?: FeedType;
 }
 
 export function useGitHub(params: UseGitHubOptions = {}) {
-  const { language, token, enabled = true } = params;
+  const { language, token, enabled = true, feedType = 'random' } = params;
 
   const seenRef = useRef<SeenRepositories>({});
 
@@ -70,24 +72,31 @@ export function useGitHub(params: UseGitHubOptions = {}) {
 
   const getNextSearchParams = useCallback(
     (seen: SeenRepositories) => {
-      const availableCriterias = SEARCH_CRITERIAS.map((criteria) => ({
-        ...criteria,
-        language: language || undefined,
-      })).filter((criteria) => !seen[JSON.stringify(criteria)]?.exhausted);
+      const availableCriterias = getSearchCriterias(feedType)
+        .map((criteria) => ({
+          ...criteria,
+          language: language || undefined,
+        }))
+        .filter((criteria) => !seen[JSON.stringify(criteria)]?.exhausted);
 
       if (availableCriterias.length === 0) {
         // If all criterias are exhausted, clear seen data and start over
         localStorage.removeItem(SEEN_STORAGE_KEY);
         return {
-          criteria: { ...SEARCH_CRITERIAS[0], language: language || undefined },
+          criteria: {
+            ...getSearchCriterias(feedType)[0],
+            language: language || undefined,
+          },
           page: 1,
         };
       }
 
       const criteria =
-        availableCriterias[
-          Math.floor(Math.random() * availableCriterias.length)
-        ];
+        feedType === 'new'
+          ? availableCriterias[0]
+          : availableCriterias[
+              Math.floor(Math.random() * availableCriterias.length)
+            ];
       const criteriaKey = JSON.stringify(criteria);
       const seenData = seen[criteriaKey];
 
@@ -108,7 +117,7 @@ export function useGitHub(params: UseGitHubOptions = {}) {
       saveSeenRepositories(seen);
       return getNextSearchParams(seen);
     },
-    [language]
+    [language, feedType]
   );
 
   const {

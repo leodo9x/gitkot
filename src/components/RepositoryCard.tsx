@@ -1,4 +1,12 @@
-import { CircleDot, GitFork, GitPullRequest, Share2, Star } from 'lucide-react';
+import {
+  CircleDot,
+  GitFork,
+  GitPullRequest,
+  Share2,
+  Star,
+  Calendar,
+  Clock,
+} from 'lucide-react';
 import { shortNumber } from '../lib/number';
 export type License = {
   key: string;
@@ -107,6 +115,35 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
         <p className='text-white/70 text-base leading-relaxed line-clamp-3 min-h-0 [overflow-wrap:anywhere]'>
           {repository.description}
         </p>
+
+        <div className='mt-auto flex flex-wrap gap-3'>
+          <div className='flex items-center gap-2 bg-white/[0.03] px-3 py-1 rounded-full border border-white/[0.06] hover:bg-white/[0.06] transition-colors'>
+            <Calendar className='w-4 h-4 text-white/40' />
+            <time
+              dateTime={repository.created_at}
+              className='text-white/70 text-sm'
+            >
+              {new Date(repository.created_at).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </time>
+          </div>
+          <div className='flex items-center gap-2 bg-white/[0.03] px-3 py-1 rounded-full border border-white/[0.06] hover:bg-white/[0.06] transition-colors'>
+            <Clock className='w-4 h-4 text-white/40' />
+            <time
+              dateTime={repository.updated_at}
+              className='text-white/70 text-sm'
+            >
+              {new Date(repository.updated_at).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </time>
+          </div>
+        </div>
       </div>
 
       <div className='bg-gradient-to-r from-white/[0.03] to-white/[0.02] rounded-2xl p-3 backdrop-blur-xl border border-white/[0.06] shadow-xl'>
