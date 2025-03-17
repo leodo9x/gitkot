@@ -74,7 +74,7 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
         <a
           href={repository.html_url}
           target='_blank'
-          className='flex items-center gap-3 mb-4'
+          className='flex items-center gap-3 mb-2'
         >
           <img
             src={repository.owner.avatar_url}
@@ -91,7 +91,7 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
           </span>
         </a>
 
-        <div className='flex flex-wrap items-center gap-2 text-sm mb-4'>
+        <div className='flex flex-wrap items-center gap-2 text-sm mb-2'>
           {repository.language && (
             <div className='flex items-center gap-2 bg-white/[0.03] px-3 py-1 rounded-full border border-white/[0.06] hover:bg-white/[0.06] transition-colors'>
               <span
@@ -104,11 +104,11 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
           )}
         </div>
 
-        <p className='text-white/70 text-base leading-relaxed line-clamp-3 min-h-0 [overflow-wrap:anywhere]'>
+        <p className='text-white/70 text-base leading-relaxed line-clamp-5 min-h-0 [overflow-wrap:anywhere]'>
           {repository.description}
         </p>
 
-        <div className='mt-auto flex gap-3'>
+        <div className='mt-auto flex justify-between'>
           <div className='flex items-center gap-2 bg-white/[0.03] px-3 py-1 rounded-full border border-white/[0.06] hover:bg-white/[0.06] transition-colors'>
             <Hammer className='w-4 h-4 text-white/40' />
             <time
@@ -196,7 +196,7 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
                 })
                 .catch((error) => console.log('Error sharing:', error));
             }}
-            className='w-10 h-10 flex items-center justify-center bg-white/[0.03] border border-white/[0.06] rounded-xl hover:bg-white/[0.06] transition-colors group'
+            className='w-12 h-12 flex items-center justify-center bg-white/[0.03] border border-white/[0.06] rounded-xl hover:bg-white/[0.06] transition-colors group'
           >
             <Share2 className='w-5 h-5 text-white/70 group-hover:text-white transition-colors' />
           </button>
