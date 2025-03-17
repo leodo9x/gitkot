@@ -1,11 +1,10 @@
 import {
-  CircleDot,
   GitFork,
   GitPullRequest,
   Share2,
   Star,
-  Calendar,
-  Clock,
+  Hammer,
+  ClockArrowDown,
 } from 'lucide-react';
 import { shortNumber } from '../lib/number';
 export type License = {
@@ -71,7 +70,7 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
 
   return (
     <div className='grid grid-rows-[minmax(0,1fr)_auto_auto] h-full gap-4 sm:gap-6'>
-      <div className='bg-white/[0.03] rounded-2xl p-6 sm:p-8 backdrop-blur-xl border border-white/[0.06] shadow-xl flex flex-col min-h-0 hover:bg-white/[0.04] transition-colors'>
+      <div className='bg-white/[0.03] rounded-2xl p-2 sm:p-8 backdrop-blur-xl border border-white/[0.06] shadow-xl flex flex-col min-h-0 hover:bg-white/[0.04] transition-colors'>
         <a
           href={repository.html_url}
           target='_blank'
@@ -103,22 +102,15 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
               </span>
             </div>
           )}
-
-          <div className='flex items-center gap-2 bg-white/[0.03] px-3 py-1 rounded-full border border-white/[0.06] hover:bg-white/[0.06] transition-colors'>
-            <CircleDot className='w-4 h-4 text-white/40' />
-            <span className='text-white/70 text-sm'>
-              {repository.license?.name || 'No License'}
-            </span>
-          </div>
         </div>
 
         <p className='text-white/70 text-base leading-relaxed line-clamp-3 min-h-0 [overflow-wrap:anywhere]'>
           {repository.description}
         </p>
 
-        <div className='mt-auto flex flex-wrap gap-3'>
+        <div className='mt-auto flex gap-3'>
           <div className='flex items-center gap-2 bg-white/[0.03] px-3 py-1 rounded-full border border-white/[0.06] hover:bg-white/[0.06] transition-colors'>
-            <Calendar className='w-4 h-4 text-white/40' />
+            <Hammer className='w-4 h-4 text-white/40' />
             <time
               dateTime={repository.created_at}
               className='text-white/70 text-sm'
@@ -131,7 +123,7 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
             </time>
           </div>
           <div className='flex items-center gap-2 bg-white/[0.03] px-3 py-1 rounded-full border border-white/[0.06] hover:bg-white/[0.06] transition-colors'>
-            <Clock className='w-4 h-4 text-white/40' />
+            <ClockArrowDown className='w-4 h-4 text-white/40' />
             <time
               dateTime={repository.updated_at}
               className='text-white/70 text-sm'
@@ -146,9 +138,9 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
         </div>
       </div>
 
-      <div className='bg-gradient-to-r from-white/[0.03] to-white/[0.02] rounded-2xl p-3 backdrop-blur-xl border border-white/[0.06] shadow-xl'>
+      <div className='bg-gradient-to-r from-white/[0.03] to-white/[0.02] rounded-2xl backdrop-blur-xl border border-white/[0.06] shadow-xl'>
         <div className='grid grid-cols-3 divide-x divide-white/[0.06]'>
-          <div className='flex flex-col items-center justify-center p-2'>
+          <div className='flex flex-col items-center justify-center p-1'>
             <Star className='w-4 h-4 text-white/50 mb-1' />
             <div className='text-xl font-medium text-white'>
               {shortNumber(repository.stargazers_count)}
@@ -158,7 +150,7 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
             </div>
           </div>
 
-          <div className='flex flex-col items-center justify-center p-2'>
+          <div className='flex flex-col items-center justify-center p-1'>
             <GitFork className='w-4 h-4 text-white/50 mb-1' />
             <div className='text-xl font-medium text-white'>
               {shortNumber(repository.forks_count)}
@@ -168,7 +160,7 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
             </div>
           </div>
 
-          <div className='flex flex-col items-center justify-center p-2'>
+          <div className='flex flex-col items-center justify-center p-1'>
             <GitPullRequest className='w-4 h-4 text-white/50 mb-1' />
             <div className='text-xl font-medium text-white'>
               {shortNumber(repository.watchers_count)}
@@ -184,9 +176,9 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
         <a
           href={repository.html_url}
           target='_blank'
-          className='flex-1 bg-white/[0.05] text-white p-4 rounded-xl 
-            font-medium text-base hover:bg-white/[0.08] transition-all 
-            flex items-center justify-center gap-2 border border-white/[0.1] 
+          className='flex-1 bg-white/[0.05] text-white rounded-xl
+            font-medium text-base hover:bg-white/[0.08] transition-all
+            flex items-center justify-center gap-2 border border-white/[0.1]
             hover:border-white/[0.2] shadow-lg backdrop-blur-sm'
         >
           <Star className='w-5 h-5' />
@@ -204,7 +196,7 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
                 })
                 .catch((error) => console.log('Error sharing:', error));
             }}
-            className='w-14 h-14 flex items-center justify-center bg-white/[0.03] border border-white/[0.06] rounded-xl hover:bg-white/[0.06] transition-colors group'
+            className='w-10 h-10 flex items-center justify-center bg-white/[0.03] border border-white/[0.06] rounded-xl hover:bg-white/[0.06] transition-colors group'
           >
             <Share2 className='w-5 h-5 text-white/70 group-hover:text-white transition-colors' />
           </button>
