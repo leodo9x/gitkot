@@ -59,13 +59,17 @@ export function App() {
     isLoading: isLoading || isFetchingMore,
   });
 
+  const handleSaveFeedType = (feedType: FeedType) => {
+    setSelectedFeedType(feedType);
+    localStorage.setItem('feed_type', feedType);
+  };
+
   const handleSaveSettings = (language: string, token: string, feedType: FeedType) => {
     setSelectedLanguage(language);
     setSelectedToken(token);
-    setSelectedFeedType(feedType);
     localStorage.setItem('preferred_language', language);
     localStorage.setItem('github_token', token);
-    localStorage.setItem('feed_type', feedType);
+    handleSaveFeedType(feedType)
   };
 
   const getErrorMessage = (error: unknown) => {
@@ -93,6 +97,9 @@ export function App() {
         onSettingsClick={() => setShowSettings(true)}
         onRefreshClick={refresh}
         isDataLoading={isFetchingMore || isLoading || isRefetching}
+        initialFeedType={selectedFeedType}
+        onSavedFeedType={handleSaveFeedType}
+        onRefresh={refresh}
       />
 
       {!isOnline ? (
