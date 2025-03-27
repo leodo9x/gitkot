@@ -35,6 +35,7 @@ export type Repository = {
   fork: boolean;
   created_at: string;
   updated_at: string;
+  pushed_at: string;
   stargazers_count: number;
   watchers_count: number;
   language: string;
@@ -142,10 +143,10 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
           <div className='flex items-center gap-2 bg-white/[0.03] px-3 py-1 rounded-full border border-white/[0.06] hover:bg-white/[0.06] transition-colors'>
             <ClockArrowDown className='w-4 h-4 text-white/40' />
             <time
-              dateTime={repository.updated_at}
+              dateTime={repository.pushed_at}
               className='text-white/70 text-sm'
             >
-              {new Date(repository.updated_at).toLocaleDateString('en-US', {
+              {new Date(repository.pushed_at).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
